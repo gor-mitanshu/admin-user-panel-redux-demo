@@ -1,0 +1,27 @@
+.card {
+  position: relative !important;
+  cursor: pointer !important;
+  color: #fff !important;
+  background-color: black !important;
+}
+.card-box {
+  position: absolute !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  background-color: rgba(0, 0, 0, 0.2) !important;
+  content: "" !important;
+}
+.card-active {
+  background-color: rgb(145, 196, 149) !important;
+  color: darkgreen !important;
+}
+.card-inactive {
+  background-color: rgb(247, 145, 149) !important;
+  color: darkred !important;
+}
+.card-total-users {
+  background-color: #ffc252 !important;
+  color: #b06900 !important;
+}

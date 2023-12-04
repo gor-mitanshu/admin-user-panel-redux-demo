@@ -1,0 +1,53 @@
+.appbar {
+  background: black !important;
+}
+
+.toolbar-navbar {
+  padding: 0;
+  padding-left: 12px !important;
+  position: relative;
+  color: #fff;
+}
+
+.menu-icon {
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  padding: 0 16px 0 0 !important;
+  font-size: 40px !important;
+}
+
+.justify-end {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+}
+
+.navbar-title {
+  margin: 4px !important;
+  font-weight: 900 !important;
+  font-size: 26px !important;
+  z-index: 1;
+}
+
+.ellipsis {
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 600px) {
+  .menu-icon {
+    display: none !important;
+  }
+  .navbar-title {
+    font-size: 22px !important;
+  }
+}
+
+@media (max-width: 350px) {
+  .justify-center {
+    justify-content: center !important;
+  }
+}
