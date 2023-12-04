@@ -5,7 +5,7 @@ const initialState = {
 
 const authReducer = (state = initialState, action: any) => {
   switch (action.type) {
-    case "SET_USER_PROFILE":
+    case "SET_ADMIN_PROFILE":
       return {
         ...state,
         user: action.payload,

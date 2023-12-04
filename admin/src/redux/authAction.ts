@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const setUserProfile = (user: any) => ({
-  type: "SET_USER_PROFILE",
+  type: "SET_ADMIN_PROFILE",
   payload: user,
 });
 
@@ -12,7 +12,7 @@ export const fetchUserProfile = () => {
       const accessTokenwithoutQuotes = JSON.parse(accessToken);
       if (accessToken) {
         const res = await axios.get(
-          `${process.env.REACT_APP_API}/user/loggedProfile`,
+          `${process.env.REACT_APP_API}/admin/loggedProfile`,
           {
             headers: { Authorization: `Bearer ${accessTokenwithoutQuotes}` },
           }

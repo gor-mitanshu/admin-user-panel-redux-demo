@@ -4,40 +4,29 @@ import "./Layout.css";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./sidebar/Sidebar";
 import Navbar from "./navbar/Navbar";
-import axios from "axios";
+import { RootState } from "../../redux/store";
+import { connect } from "react-redux";
+import { fetchUserProfile } from "../../redux/authAction";
 
-const Layout = (): JSX.Element => {
+interface ILayoutProps {
+  admin: any;
+  fetchUserProfile: () => void;
+}
+
+const Layout: React.FC<ILayoutProps> = ({ admin, fetchUserProfile }) => {
   const [isOpen, setIsClose] = useState<boolean>(true);
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, [fetchUserProfile]);
 
   const toggleSidebar = () => {
     setIsClose((toogle) => !toogle);
   };
 
-  const [admin, setAdmin] = useState<any>("");
-
-  useEffect(() => {
-    const getUserData = async () => {
-      try {
-        const accessToken: any = localStorage.getItem("token");
-        const accessTokenwithoutQuotes = JSON.parse(accessToken);
-        if (accessToken) {
-          const res = await axios.get(
-            `${process.env.REACT_APP_API}/admin/loggedProfile`,
-            {
-              headers: { Authorization: `Bearer ${accessTokenwithoutQuotes}` },
-            }
-          );
-          if (res && res.data.data) {
-            setAdmin(res.data.data);
-          }
-        }
-      } catch (error: any) {
-        console.log(error.response.data.message);
-      }
-    };
-
-    getUserData();
-  }, []);
+  if (!admin) {
+    return null;
+  }
 
   return (
     <div>
@@ -56,4 +45,12 @@ const Layout = (): JSX.Element => {
   );
 };
 
-export default Layout;
+const mapStateToProps = (state: RootState) => ({
+  admin: state.auth.user,
+});
+
+const mapDispatchToProps = {
+  fetchUserProfile,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Layout);
