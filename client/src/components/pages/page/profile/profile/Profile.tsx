@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import axios from "axios";
+import React, { useEffect } from "react";
+import { connect } from "react-redux";
+import { fetchUserProfile } from "../../../../../redux/authAction";
 import {
   Avatar,
   Typography,
@@ -8,51 +8,24 @@ import {
   Grid,
   CircularProgress,
 } from "@mui/material";
+import { RootState } from "../../../../../redux/store";
+import { useNavigate } from "react-router-dom";
 
-interface IUser {
-  _id: string;
-  firstname: string;
-  lastname: string;
-  email: string;
-  phone: string;
-  picture: string;
+interface IProfileProps {
+  user: any;
+  loading: boolean;
+  fetchUserProfile: () => void;
 }
 
-const Profile = () => {
+const Profile: React.FC<IProfileProps> = ({
+  user,
+  loading,
+  fetchUserProfile,
+}) => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<IUser | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-
   useEffect(() => {
-    const getUser = async () => {
-      setLoading(true);
-      try {
-        const accessToken: any = localStorage.getItem("token");
-        const accessTokenwithoutQuotes = JSON.parse(accessToken);
-        if (accessToken) {
-          const res = await axios.get(
-            `${process.env.REACT_APP_API}/user/loggedProfile`,
-            {
-              headers: { Authorization: `Bearer ${accessTokenwithoutQuotes}` },
-            }
-          );
-          if (!!res) {
-            setLoading(false);
-            setUser(res.data.data);
-          } else {
-            console.log("User not found");
-          }
-        } else {
-          setLoading(false);
-          console.log("error");
-        }
-      } catch (error: any) {
-        setLoading(false);
-        console.log(error.response.data.message);
-      }
-    };
-    getUser();
-  }, []);
+    fetchUserProfile();
+  }, [fetchUserProfile]);
 
   return (
     <>
@@ -68,7 +41,7 @@ const Profile = () => {
             Profile
           </Typography>
           <Grid container display={"flex"} justifyContent={"center"}>
-            {user !== undefined ? (
+            {user !== null ? (
               <>
                 <div
                   style={{
@@ -125,7 +98,6 @@ const Profile = () => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            // height: "100vh",
             width: "100%",
           }}
         >
@@ -136,4 +108,13 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+const mapStateToProps = (state: RootState) => ({
+  user: state.auth.user,
+  loading: state.auth.loading,
+});
+
+const mapDispatchToProps = {
+  fetchUserProfile,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Profile);

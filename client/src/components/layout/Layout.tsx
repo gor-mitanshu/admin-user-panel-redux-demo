@@ -4,40 +4,30 @@ import "./Layout.css";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./sidebar/Sidebar";
 import Navbar from "./navbar/Navbar";
-import axios from "axios";
+import { RootState } from "../../redux/store";
+import { connect } from "react-redux";
+import { fetchUserProfile } from "../../redux/authAction";
 
-const Layout = (): JSX.Element => {
+interface ILayoutProps {
+  user: any;
+  fetchUserProfile: () => void;
+}
+
+const Layout: React.FC<ILayoutProps> = ({ user, fetchUserProfile }) => {
   const [isOpen, setIsClose] = useState<boolean>(true);
 
-  const [user, setUser] = useState<any>("");
-
   useEffect(() => {
-    const getUserData = async () => {
-      try {
-        const accessToken: any = localStorage.getItem("token");
-        const accessTokenwithoutQuotes = JSON.parse(accessToken);
-        if (accessToken) {
-          const res = await axios.get(
-            `${process.env.REACT_APP_API}/user/loggedProfile`,
-            {
-              headers: { Authorization: `Bearer ${accessTokenwithoutQuotes}` },
-            }
-          );
-          if (res && res.data.data) {
-            setUser(res.data.data);
-          }
-        }
-      } catch (error: any) {
-        console.log(error.response.data.message);
-      }
-    };
-
-    getUserData();
-  }, []);
+    fetchUserProfile();
+  }, [fetchUserProfile]);
 
   const toggleSidebar = () => {
     setIsClose((toogle) => !toogle);
   };
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <div>
       <Grid className="layout">
@@ -55,4 +45,12 @@ const Layout = (): JSX.Element => {
   );
 };
 
-export default Layout;
+const mapStateToProps = (state: RootState) => ({
+  user: state.auth.user,
+});
+
+const mapDispatchToProps = {
+  fetchUserProfile,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Layout);
