@@ -12,6 +12,7 @@ import { Block, Check, Delete, Edit, Visibility } from "@mui/icons-material";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { Helmet } from "react-helmet";
+import ConfirmationDialog from "./DeleteDialogueBox";
 
 interface IUsers {
   id?: string;
@@ -41,6 +42,10 @@ const Users = () => {
   const navigate = useNavigate();
   const [users, setUsers] = useState<IUsers | any>([]);
   const [isloading, setLoading] = useState<boolean>(false);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    userId?: string;
+  }>({ open: false });
 
   const getUsers = async () => {
     try {
@@ -65,27 +70,39 @@ const Users = () => {
     getUsers();
   }, []);
 
-  const onUserDelete = async (id: string) => {
-    try {
-      const accessToken: any = localStorage.getItem("token");
-      const accessTokenwithoutQuotes = JSON.parse(accessToken);
-      const res = await axios.delete(
-        `${process.env.REACT_APP_API}/user/delete/${id}`,
-        {
-          headers: { Authorization: `Bearer ${accessTokenwithoutQuotes}` },
-        }
-      );
-      if (res && res.data.success) {
-        getUsers();
-        toast.success(res.data.message);
-      } else {
-        toast.error(res.data.message);
-      }
-    } catch (error: any) {
-      console.log(error);
-      toast.error(error.response.data.message);
-    }
+  const onUserDelete = (id: string) => {
+    setConfirmDialog({ open: true, userId: id });
   };
+
+  const handleConfirmation = async (confirmed: boolean) => {
+    if (confirmed) {
+      try {
+        const accessToken: any = localStorage.getItem("token");
+        const accessTokenwithoutQuotes = JSON.parse(accessToken);
+        const res = await axios.delete(
+          `${process.env.REACT_APP_API}/user/delete/${confirmDialog.userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessTokenwithoutQuotes}`,
+            },
+          }
+        );
+        console.log(res);
+        if (res && res.data) {
+          getUsers();
+          toast.success(res.data.message);
+        } else {
+          toast.error(res.data.message);
+        }
+      } catch (error: any) {
+        console.log(error);
+        toast.error(error.response.data.message);
+      }
+    }
+
+    setConfirmDialog({ open: false, userId: undefined });
+  };
+
   const rows = users.map((user: any, key: any) => ({
     id: key + 1,
     userId: user._id,
@@ -304,6 +321,14 @@ const Users = () => {
           </div>
         )}
       </Grid>
+
+      {confirmDialog.open && (
+        <ConfirmationDialog
+          title="Confirm Delete"
+          description="Are you sure you want to delete this user?"
+          onConfirm={handleConfirmation}
+        />
+      )}
     </>
   );
 };
