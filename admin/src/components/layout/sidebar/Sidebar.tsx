@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Divider,
   Grid,
@@ -21,10 +21,20 @@ import "./Sidebar.css";
 import { NavLink, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../../pages/protectedRoute/AuthContext";
+import DialogModal from "../../../components/pages/page/dailogueBox/DialogModal";
 
 const Sidebar = ({ adminId }: any): JSX.Element => {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const [isLogoutDialogOpen, setLogoutDialogOpen] = useState(false);
+
+  const handleOpenLogoutDialog = () => {
+    setLogoutDialogOpen(true);
+  };
+
+  const handleCloseLogoutDialog = () => {
+    setLogoutDialogOpen(false);
+  };
 
   const handleLogout = () => {
     logout();
@@ -91,7 +101,7 @@ const Sidebar = ({ adminId }: any): JSX.Element => {
             >
               <ListItemButton
                 className="sidebar-listitem-btn"
-                onClick={handleLogout}
+                onClick={handleOpenLogoutDialog}
               >
                 <ListItemIcon className="sidebar-icon">
                   <Logout />
@@ -103,6 +113,17 @@ const Sidebar = ({ adminId }: any): JSX.Element => {
           <Divider />
         </Grid>
       </Grid>
+      <DialogModal
+        isOpen={isLogoutDialogOpen}
+        handleClose={handleCloseLogoutDialog}
+        handleConfirm={handleLogout}
+        title="Confirm Logout"
+        message="Are you sure you want to logout?"
+        cancelButtonText="Cancel"
+        confirmButtonText="Logout"
+        cancelColor="secondary"
+        confirmColor="error"
+      />
     </>
   );
 };

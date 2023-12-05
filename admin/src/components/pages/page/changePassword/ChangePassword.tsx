@@ -17,6 +17,7 @@ import axios from "axios";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { toast } from "react-toastify";
 import { Helmet } from "react-helmet";
+import DialogModal from "../dailogueBox/DialogModal";
 
 interface IUser {
   password: string;
@@ -33,6 +34,8 @@ const SidebarChangePassword = () => {
     cpassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [isDialogOpen, setDialogOpen] = useState(false);
+
   const handleClickShowPassword = () => setShowPassword(!showPassword);
   const handleMouseDownPassword = (event: any) => event.preventDefault();
 
@@ -51,23 +54,29 @@ const SidebarChangePassword = () => {
     }));
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!user.password) {
-      showErrorWithTimeout("Please Enter Password", 3000);
-      return;
-    }
-    if (user.cpassword !== user.password) {
-      showErrorWithTimeout("Please Enter the same Password", 3000);
-      return;
-    }
+  const handleOpenDialog = () => {
+    setDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+  };
+
+  const handleConfirmReset = async () => {
+    // Perform the reset action
+    console.log("Resetting password...");
     try {
       const body = {
         password: user.password,
       };
+      const accessToken: any = localStorage.getItem("token");
+      const accessTokenwithoutQuotes = JSON.parse(accessToken);
       const res = await axios.put(
         `${process.env.REACT_APP_API}/admin/changePassword/${id}`,
-        body
+        body,
+        {
+          headers: { Authorization: `Bearer ${accessTokenwithoutQuotes}` },
+        }
       );
       if (!!res) {
         toast.success("Passwords updated successfully");
@@ -77,9 +86,10 @@ const SidebarChangePassword = () => {
         });
       }
     } catch (error: any) {
-      console.log(error);
+      console.error(error);
       showErrorWithTimeout(error.response.data.message, 3000);
-      return;
+    } finally {
+      handleCloseDialog();
     }
   };
 
@@ -120,7 +130,7 @@ const SidebarChangePassword = () => {
               )}
               <Box
                 component="form"
-                onSubmit={handleSubmit}
+                // onSubmit={handleSubmit}
                 noValidate
                 sx={{ mt: 1 }}
               >
@@ -169,9 +179,10 @@ const SidebarChangePassword = () => {
                   }}
                 />
                 <Button
-                  type="submit"
+                  type="button"
                   variant="contained"
                   sx={{ mt: 2, mb: 2, width: "100%" }}
+                  onClick={handleOpenDialog}
                 >
                   Reset
                 </Button>
@@ -180,6 +191,19 @@ const SidebarChangePassword = () => {
           </Paper>
         </Container>
       </ThemeProvider>
+
+      {/* Dialog for confirming reset */}
+      <DialogModal
+        isOpen={isDialogOpen}
+        handleClose={handleCloseDialog}
+        handleConfirm={handleConfirmReset}
+        title="Confirm Reset"
+        message="Are you sure you want to reset your password?"
+        cancelButtonText="Cancel"
+        confirmButtonText="Reset"
+        cancelColor="secondary"
+        confirmColor="primary"
+      />
     </>
   );
 };
