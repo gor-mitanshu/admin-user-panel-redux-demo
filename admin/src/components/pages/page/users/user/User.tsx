@@ -12,7 +12,7 @@ import { Block, Check, Delete, Edit, Visibility } from "@mui/icons-material";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { Helmet } from "react-helmet";
-import ConfirmationDialog from "../../dailogueBox/ConfirmationDialog";
+import DialogModal from "../../dailogueBox/DialogModal";
 
 interface IUsers {
   id?: string;
@@ -76,6 +76,7 @@ const Users = () => {
 
   const handleConfirmation = async (confirmed: boolean) => {
     if (confirmed) {
+      debugger;
       try {
         const accessToken: any = localStorage.getItem("token");
         const accessTokenwithoutQuotes = JSON.parse(accessToken);
@@ -323,10 +324,18 @@ const Users = () => {
       </Grid>
 
       {confirmDialog.open && (
-        <ConfirmationDialog
+        <DialogModal
+          isOpen={confirmDialog.open}
+          handleClose={() =>
+            setConfirmDialog({ open: false, userId: undefined })
+          }
+          handleConfirm={() => handleConfirmation(true)}
           title="Confirm Delete"
-          description="Are you sure you want to delete this user?"
-          onConfirm={handleConfirmation}
+          message="Are you sure you want to delete this user?"
+          confirmButtonText="Delete"
+          cancelButtonText="Cancel"
+          confirmColor="error"
+          cancelColor="primary"
         />
       )}
     </>

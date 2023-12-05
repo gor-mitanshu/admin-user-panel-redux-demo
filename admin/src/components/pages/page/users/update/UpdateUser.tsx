@@ -12,7 +12,7 @@ import {
   Avatar,
 } from "@mui/material";
 import { Helmet } from "react-helmet";
-import DialogModal from "../DialogModal";
+import DialogModal from "../../dailogueBox/DialogModal";
 
 interface IUser {
   id?: string;
@@ -328,6 +328,12 @@ const UpdateUser = () => {
                 isOpen={isDialogOpen}
                 handleClose={handleCloseDialog}
                 handleConfirm={handleConfirmUpdate}
+                title="Confirm Update"
+                message={`Are you sure you want to update the user?`}
+                confirmButtonText="Update"
+                cancelButtonText="Cancel"
+                confirmColor="error"
+                cancelColor="primary"
               />
             </Grid>
           </>

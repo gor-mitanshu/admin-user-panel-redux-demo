@@ -4,6 +4,7 @@ import axios from "axios";
 import { Avatar, Typography, Button, Grid, TextField } from "@mui/material";
 import { toast } from "react-toastify";
 import { Helmet } from "react-helmet";
+import DialogModal from "../../dailogueBox/DialogModal";
 
 interface IUser {
   id?: string;
@@ -37,6 +38,7 @@ const UpdateProfile = () => {
     password: "",
     picture: "",
   });
+  const [isDialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     const getUser = async () => {
@@ -79,8 +81,7 @@ const UpdateProfile = () => {
     }
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSubmit = async () => {
     if (!editedUser.firstname) {
       showErrorWithTimeout("Please Enter Your firstname", 3000);
       return;
@@ -137,7 +138,6 @@ const UpdateProfile = () => {
   };
 
   const hasChanges = () => {
-    // Check if there are any changes in the user data
     return (
       editedUser.firstname !== initialUser.current.firstname ||
       editedUser.lastname !== initialUser.current.lastname ||
@@ -147,6 +147,19 @@ const UpdateProfile = () => {
         editedUser.picture instanceof File &&
         editedUser.picture !== initialUser.current.picture)
     );
+  };
+
+  const handleOpenDialog = () => {
+    setDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+  };
+
+  const handleConfirmUpdate = () => {
+    handleSubmit();
+    handleCloseDialog();
   };
 
   return (
@@ -181,14 +194,6 @@ const UpdateProfile = () => {
                       : `${process.env.REACT_APP_API}/adminImages/${editedUser.picture}`
                     : ""
                 }
-                // Firstname and Lastname Loop and getting initial letter
-                // alt={editedUser.firstname
-                //   .concat(".", editedUser.lastname)
-                //   .split(" ")
-                //   .map((n: any) => n[0])
-                //   .join("")
-                //   .toUpperCase()}
-
                 alt={editedUser.firstname
                   .split(" ")
                   .map((n: any) => n[0])
@@ -259,6 +264,7 @@ const UpdateProfile = () => {
                   color="error"
                   size="large"
                   style={{ marginTop: "20px", marginRight: "5px" }}
+                  // onClick={handleOpenDialog}
                   onClick={() => navigate("/profile")}
                 >
                   Cancel
@@ -269,7 +275,8 @@ const UpdateProfile = () => {
                   color="primary"
                   size="large"
                   style={{ marginTop: "20px" }}
-                  onClick={(e: any) => handleSubmit(e)}
+                  // onClick={(e: any) => handleSubmit()}
+                  onClick={handleOpenDialog}
                   disabled={!hasChanges()}
                 >
                   Update
@@ -283,6 +290,19 @@ const UpdateProfile = () => {
           </Typography>
         )}
       </Grid>
+
+      {/* DialogModal for confirming update */}
+      <DialogModal
+        isOpen={isDialogOpen}
+        handleClose={handleCloseDialog}
+        handleConfirm={handleConfirmUpdate}
+        title="Confirm Update"
+        message="Are you sure you want to update your profile?"
+        cancelButtonText="Cancel"
+        confirmButtonText="Update"
+        cancelColor="error"
+        confirmColor="primary"
+      />
     </>
   );
 };
