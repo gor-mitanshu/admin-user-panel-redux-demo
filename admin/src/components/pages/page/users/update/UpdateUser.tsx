@@ -163,7 +163,6 @@ const UpdateUser = () => {
   };
 
   const hasChanges = () => {
-    // Check if there are any changes in the user data
     return (
       editedUser.firstname !== initialUser.current.firstname ||
       editedUser.lastname !== initialUser.current.lastname ||
@@ -215,9 +214,11 @@ const UpdateUser = () => {
             <Grid item xs={11} sm={10} lg={6}>
               <Avatar
                 src={
-                  editedUser.picture instanceof File
-                    ? URL.createObjectURL(editedUser.picture)
-                    : `${process.env.REACT_APP_API}/userImages/${editedUser.picture}`
+                  editedUser.picture
+                    ? editedUser.picture instanceof File
+                      ? URL.createObjectURL(editedUser.picture)
+                      : `${process.env.REACT_APP_API}/userImages/${editedUser.picture}`
+                    : ""
                 }
                 alt={editedUser.firstname
                   .concat(".", editedUser.lastname)

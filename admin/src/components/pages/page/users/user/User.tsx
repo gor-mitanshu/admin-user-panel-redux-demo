@@ -264,7 +264,7 @@ const Users = () => {
       <Helmet>
         <title>Admin Panel - Users</title>
       </Helmet>
-      <Grid container padding={2}>
+      <Grid container padding={2} style={{ height: "50%" }}>
         <Typography
           className="font"
           color="black"
@@ -314,7 +314,6 @@ const Users = () => {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              height: "100vh",
               width: "100%",
             }}
           >
