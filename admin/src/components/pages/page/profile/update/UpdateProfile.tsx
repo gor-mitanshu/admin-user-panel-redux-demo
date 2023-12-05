@@ -122,7 +122,6 @@ const UpdateProfile = () => {
           },
         }
       );
-      console.log(res);
       if (res) {
         navigate(`/profile`);
         toast.success("User Updated Successfully");
@@ -291,7 +290,6 @@ const UpdateProfile = () => {
         )}
       </Grid>
 
-      {/* DialogModal for confirming update */}
       <DialogModal
         isOpen={isDialogOpen}
         handleClose={handleCloseDialog}

@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
 import axios from "axios";
 import { Avatar, Typography, Button, Grid, TextField } from "@mui/material";
 import { toast } from "react-toastify";
+import DialogModal from "../../dailogueBox/DialogModal";
 
 interface IUser {
   id?: string;
@@ -28,6 +29,15 @@ const UpdateProfile = () => {
     password: "",
     picture: "",
   });
+  const initialUser = useRef<IUser>({
+    firstname: "",
+    lastname: "",
+    email: "",
+    phone: "",
+    password: "",
+    picture: "",
+  });
+  const [isDialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     const getUser = async () => {
@@ -40,6 +50,7 @@ const UpdateProfile = () => {
         .then((response) => {
           const userData = response.data.data;
           setEditedUser(userData);
+          initialUser.current = userData;
           setInitialPicture(userData.picture);
         });
     };
@@ -69,8 +80,7 @@ const UpdateProfile = () => {
     }
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSubmit = async () => {
     if (!editedUser.firstname) {
       showErrorWithTimeout("Please Enter Your firstname", 3000);
       return;
@@ -102,7 +112,7 @@ const UpdateProfile = () => {
       const accessToken: any = localStorage.getItem("token");
       const accessTokenwithoutQuotes = JSON.parse(accessToken);
       const res = await axios.put(
-        `${process.env.REACT_APP_API}/user/update/${id}`,
+        `${process.env.REACT_APP_API}/admin/update/${id}`,
         formData,
         {
           headers: {
@@ -111,7 +121,6 @@ const UpdateProfile = () => {
           },
         }
       );
-      console.log(res);
       if (res) {
         navigate(`/profile`);
         toast.success("User Updated Successfully");
@@ -124,6 +133,31 @@ const UpdateProfile = () => {
       showErrorWithTimeout(error.response.data.message, 3000);
       return;
     }
+  };
+
+  const hasChanges = () => {
+    return (
+      editedUser.firstname !== initialUser.current.firstname ||
+      editedUser.lastname !== initialUser.current.lastname ||
+      editedUser.email !== initialUser.current.email ||
+      editedUser.phone !== initialUser.current.phone ||
+      (imageChanged &&
+        editedUser.picture instanceof File &&
+        editedUser.picture !== initialUser.current.picture)
+    );
+  };
+
+  const handleOpenDialog = () => {
+    setDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+  };
+
+  const handleConfirmUpdate = () => {
+    handleSubmit();
+    handleCloseDialog();
   };
 
   return (
@@ -152,17 +186,9 @@ const UpdateProfile = () => {
                   editedUser.picture
                     ? editedUser.picture instanceof File
                       ? URL.createObjectURL(editedUser.picture)
-                      : `${process.env.REACT_APP_API}/userImages/${editedUser.picture}`
+                      : `${process.env.REACT_APP_API}/adminImages/${editedUser.picture}`
                     : ""
                 }
-                // Firstname and Lastname Loop and getting initial letter
-                // alt={editedUser.firstname
-                //   .concat(".", editedUser.lastname)
-                //   .split(" ")
-                //   .map((n: any) => n[0])
-                //   .join("")
-                //   .toUpperCase()}
-
                 alt={editedUser.firstname
                   .split(" ")
                   .map((n: any) => n[0])
@@ -233,19 +259,22 @@ const UpdateProfile = () => {
                   color="error"
                   size="large"
                   style={{ marginTop: "20px", marginRight: "5px" }}
+                  // onClick={handleOpenDialog}
                   onClick={() => navigate("/profile")}
                 >
                   Cancel
                 </Button>
+
                 <Button
-                  type="submit"
                   variant="contained"
                   color="primary"
                   size="large"
                   style={{ marginTop: "20px" }}
-                  onClick={(e: any) => handleSubmit(e)}
+                  // onClick={(e: any) => handleSubmit()}
+                  onClick={handleOpenDialog}
+                  disabled={!hasChanges()}
                 >
-                  Save
+                  Update
                 </Button>
               </div>
             </Grid>
@@ -256,6 +285,18 @@ const UpdateProfile = () => {
           </Typography>
         )}
       </Grid>
+
+      <DialogModal
+        isOpen={isDialogOpen}
+        handleClose={handleCloseDialog}
+        handleConfirm={handleConfirmUpdate}
+        title="Confirm Update"
+        message="Are you sure you want to update your profile?"
+        cancelButtonText="Cancel"
+        confirmButtonText="Update"
+        cancelColor="error"
+        confirmColor="primary"
+      />
     </>
   );
 };

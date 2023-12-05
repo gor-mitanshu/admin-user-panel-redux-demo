@@ -16,6 +16,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { toast } from "react-toastify";
+import DialogModal from "../dailogueBox/DialogModal";
 
 interface IUser {
   password: string;
@@ -32,6 +33,8 @@ const SidebarChangePassword = () => {
     cpassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [isDialogOpen, setDialogOpen] = useState(false);
+
   const handleClickShowPassword = () => setShowPassword(!showPassword);
   const handleMouseDownPassword = (event: any) => event.preventDefault();
 
@@ -50,16 +53,17 @@ const SidebarChangePassword = () => {
     }));
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!user.password) {
-      showErrorWithTimeout("Please Enter Password", 3000);
-      return;
-    }
-    if (user.cpassword !== user.password) {
-      showErrorWithTimeout("Please Enter the same Password", 3000);
-      return;
-    }
+  const handleOpenDialog = () => {
+    setDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+  };
+
+  const handleConfirmReset = async () => {
+    // Perform the reset action
+    console.log("Resetting password...");
     try {
       const body = {
         password: user.password,
@@ -74,112 +78,129 @@ const SidebarChangePassword = () => {
         }
       );
       if (!!res) {
-        toast.success("Passwords updated successfully");
+        toast.success("Password updated successfully");
         setUser({
           password: "",
           cpassword: "",
         });
       }
     } catch (error: any) {
-      console.log(error);
+      console.error(error);
       showErrorWithTimeout(error.response.data.message, 3000);
-      return;
+    } finally {
+      handleCloseDialog();
     }
   };
 
   return (
-    <ThemeProvider theme={defaultTheme}>
-      <Container component="main" maxWidth="xs">
-        <Paper
-          elevation={5}
-          sx={{
-            border: "1px",
-            marginTop: 4,
-            padding: "30px",
-            borderRadius: "10px",
-          }}
-        >
-          <Box
+    <>
+      <ThemeProvider theme={defaultTheme}>
+        <Container component="main" maxWidth="xs">
+          <Paper
+            elevation={5}
             sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "flex-start",
+              border: "1px",
+              marginTop: 4,
+              padding: "30px",
+              borderRadius: "10px",
             }}
           >
-            <Avatar sx={{ m: 1, bgcolor: "primary.main" }}>
-              <LockOutlinedIcon />
-            </Avatar>
-            <Typography component="h1" variant="h5">
-              Change Password
-            </Typography>
-            {error && (
-              <Typography marginTop={2} textAlign={"center"} color="error">
-                <b>Error:</b> {error}
-              </Typography>
-            )}
             <Box
-              component="form"
-              onSubmit={handleSubmit}
-              noValidate
-              // sx={{ mt: 1 }}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "flex-start",
+              }}
             >
-              <TextField
-                type={showPassword ? "text" : "password"}
-                label="Password"
-                fullWidth
-                value={user.password}
-                onChange={handleChange}
-                name="password"
-                sx={{ margin: "25px 0 0 0 " }}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={handleClickShowPassword}
-                        onMouseDown={handleMouseDownPassword}
-                        edge="end"
-                      >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <TextField
-                type={showPassword ? "text" : "password"}
-                label="Confirm Password"
-                sx={{ margin: "20px 0 0 0" }}
-                fullWidth
-                value={user.cpassword}
-                onChange={handleChange}
-                name="cpassword"
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={handleClickShowPassword}
-                        onMouseDown={handleMouseDownPassword}
-                        edge="end"
-                      >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <Button
-                type="submit"
-                variant="contained"
-                sx={{ mt: 2, mb: 2, width: "100%" }}
+              <Avatar sx={{ m: 1, bgcolor: "primary.main" }}>
+                <LockOutlinedIcon />
+              </Avatar>
+              <Typography component="h1" variant="h5">
+                Change Password
+              </Typography>
+              {error && (
+                <Typography marginY={1} textAlign={"center"} color="error">
+                  <b>Error:</b> {error}
+                </Typography>
+              )}
+              <Box
+                component="form"
+                // onSubmit={handleSubmit}
+                noValidate
+                sx={{ mt: 1 }}
               >
-                Reset
-              </Button>
+                <TextField
+                  type={showPassword ? "text" : "password"}
+                  label="Password"
+                  fullWidth
+                  value={user.password}
+                  onChange={handleChange}
+                  name="password"
+                  sx={{ margin: "25px 0 0 0 " }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={handleClickShowPassword}
+                          onMouseDown={handleMouseDownPassword}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                <TextField
+                  type={showPassword ? "text" : "password"}
+                  label="Confirm Password"
+                  sx={{ margin: "20px 0 0 0" }}
+                  fullWidth
+                  value={user.cpassword}
+                  onChange={handleChange}
+                  name="cpassword"
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={handleClickShowPassword}
+                          onMouseDown={handleMouseDownPassword}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="contained"
+                  sx={{ mt: 2, mb: 2, width: "100%" }}
+                  onClick={handleOpenDialog}
+                >
+                  Reset
+                </Button>
+              </Box>
             </Box>
-          </Box>
-        </Paper>
-      </Container>
-    </ThemeProvider>
+          </Paper>
+        </Container>
+      </ThemeProvider>
+
+      {/* Dialog for confirming reset */}
+      <DialogModal
+        isOpen={isDialogOpen}
+        handleClose={handleCloseDialog}
+        handleConfirm={handleConfirmReset}
+        title="Confirm Reset"
+        message="Are you sure you want to reset your password?"
+        cancelButtonText="Cancel"
+        confirmButtonText="Reset"
+        cancelColor="secondary"
+        confirmColor="primary"
+      />
+    </>
   );
 };
 

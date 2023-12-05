@@ -63,8 +63,6 @@ const SidebarChangePassword = () => {
   };
 
   const handleConfirmReset = async () => {
-    // Perform the reset action
-    console.log("Resetting password...");
     try {
       const body = {
         password: user.password,
@@ -79,7 +77,7 @@ const SidebarChangePassword = () => {
         }
       );
       if (!!res) {
-        toast.success("Passwords updated successfully");
+        toast.success("Password updated successfully");
         setUser({
           password: "",
           cpassword: "",
