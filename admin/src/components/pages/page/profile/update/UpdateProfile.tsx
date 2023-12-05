@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
 import axios from "axios";
 import { Avatar, Typography, Button, Grid, TextField } from "@mui/material";
@@ -29,6 +29,14 @@ const UpdateProfile = () => {
     password: "",
     picture: "",
   });
+  const initialUser = useRef<IUser>({
+    firstname: "",
+    lastname: "",
+    email: "",
+    phone: "",
+    password: "",
+    picture: "",
+  });
 
   useEffect(() => {
     const getUser = async () => {
@@ -41,6 +49,7 @@ const UpdateProfile = () => {
         .then((response) => {
           const userData = response.data.data;
           setEditedUser(userData);
+          initialUser.current = userData;
           setInitialPicture(userData.picture);
         });
     };
@@ -125,6 +134,19 @@ const UpdateProfile = () => {
       showErrorWithTimeout(error.response.data.message, 3000);
       return;
     }
+  };
+
+  const hasChanges = () => {
+    // Check if there are any changes in the user data
+    return (
+      editedUser.firstname !== initialUser.current.firstname ||
+      editedUser.lastname !== initialUser.current.lastname ||
+      editedUser.email !== initialUser.current.email ||
+      editedUser.phone !== initialUser.current.phone ||
+      (imageChanged &&
+        editedUser.picture instanceof File &&
+        editedUser.picture !== initialUser.current.picture)
+    );
   };
 
   return (
@@ -241,15 +263,16 @@ const UpdateProfile = () => {
                 >
                   Cancel
                 </Button>
+
                 <Button
-                  type="submit"
                   variant="contained"
                   color="primary"
                   size="large"
                   style={{ marginTop: "20px" }}
                   onClick={(e: any) => handleSubmit(e)}
+                  disabled={!hasChanges()}
                 >
-                  Save
+                  Update
                 </Button>
               </div>
             </Grid>

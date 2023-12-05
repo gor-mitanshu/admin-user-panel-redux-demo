@@ -167,7 +167,7 @@ const ViewUser = () => {
                 />
                 {user.picture !== "" && (
                   <Link
-                    to={`${process.env.REACT_APP_API}/${user?.picture}`}
+                    to={`${process.env.REACT_APP_API}/userImages/${user?.picture}`}
                     target="_blank"
                   >
                     <Button

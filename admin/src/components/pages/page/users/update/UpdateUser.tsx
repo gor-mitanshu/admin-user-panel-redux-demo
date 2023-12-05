@@ -12,6 +12,7 @@ import {
   Avatar,
 } from "@mui/material";
 import { Helmet } from "react-helmet";
+import DialogModal from "../DialogModal";
 
 interface IUser {
   id?: string;
@@ -41,6 +42,16 @@ const UpdateUser = () => {
     status: "",
   });
   const statusOptions = ["active", "inactive"];
+  const [isDialogOpen, setDialogOpen] = useState(false);
+  const initialUser = useRef<IUser>({
+    firstname: "",
+    lastname: "",
+    email: "",
+    phone: "",
+    password: "",
+    picture: "",
+    status: "",
+  });
 
   useEffect(() => {
     const getUser = async () => {
@@ -53,6 +64,8 @@ const UpdateUser = () => {
         .then((response) => {
           const userData = response.data.data;
           setEditedUser(userData);
+          // Store the initial user data using useRef
+          initialUser.current = userData;
           setInitialPicture(userData.picture);
         });
     };
@@ -94,8 +107,7 @@ const UpdateUser = () => {
     }
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSubmit = async () => {
     if (!editedUser.firstname) {
       showErrorWithTimeout("Please Enter Your firstname", 3000);
       return;
@@ -150,6 +162,33 @@ const UpdateUser = () => {
     }
   };
 
+  const hasChanges = () => {
+    // Check if there are any changes in the user data
+    return (
+      editedUser.firstname !== initialUser.current.firstname ||
+      editedUser.lastname !== initialUser.current.lastname ||
+      editedUser.email !== initialUser.current.email ||
+      editedUser.phone !== initialUser.current.phone ||
+      editedUser.status !== initialUser.current.status ||
+      (imageChanged &&
+        editedUser.picture instanceof File &&
+        editedUser.picture !== initialUser.current.picture)
+    );
+  };
+
+  const handleOpenDialog = () => {
+    setDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+  };
+
+  const handleConfirmUpdate = () => {
+    handleSubmit();
+    handleCloseDialog();
+  };
+
   return (
     <>
       <Helmet>
@@ -178,7 +217,7 @@ const UpdateUser = () => {
                 src={
                   editedUser.picture instanceof File
                     ? URL.createObjectURL(editedUser.picture)
-                    : `${process.env.REACT_APP_API}/${editedUser.picture}`
+                    : `${process.env.REACT_APP_API}/userImages/${editedUser.picture}`
                 }
                 alt={editedUser.firstname
                   .concat(".", editedUser.lastname)
@@ -192,7 +231,6 @@ const UpdateUser = () => {
                   margin: "0 auto 20px",
                   border: "1px solid black",
                 }}
-                // style={{ backgroundColor: getRandomColor() }}
               />
               {error && (
                 <Typography marginY={1} textAlign={"center"} color="error">
@@ -264,6 +302,7 @@ const UpdateUser = () => {
                   />
                 </Grid>
               </Grid>
+
               <Button
                 variant="contained"
                 color="error"
@@ -273,16 +312,23 @@ const UpdateUser = () => {
               >
                 Cancel
               </Button>
+
               <Button
-                type="submit"
                 variant="contained"
                 color="primary"
                 size="large"
                 style={{ marginTop: "20px" }}
-                onClick={(e: any) => handleSubmit(e)}
+                onClick={handleOpenDialog}
+                disabled={!hasChanges()}
               >
                 Update
               </Button>
+
+              <DialogModal
+                isOpen={isDialogOpen}
+                handleClose={handleCloseDialog}
+                handleConfirm={handleConfirmUpdate}
+              />
             </Grid>
           </>
         ) : (

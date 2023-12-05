@@ -12,7 +12,7 @@ import { Block, Check, Delete, Edit, Visibility } from "@mui/icons-material";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { Helmet } from "react-helmet";
-import ConfirmationDialog from "./DeleteDialogueBox";
+import ConfirmationDialog from "../../dailogueBox/ConfirmationDialog";
 
 interface IUsers {
   id?: string;
