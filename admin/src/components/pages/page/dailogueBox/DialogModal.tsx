@@ -35,6 +35,9 @@ const DialogModal: React.FC<DialogModalProps> = ({
     <Dialog
       open={isOpen}
       // onClose={handleClose}
+      maxWidth="sm"
+      fullWidth
+      sx={{ padding: "10px" }}
     >
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
