@@ -8,17 +8,16 @@ import {
   Grid,
   CircularProgress,
 } from "@mui/material";
-import { RootState } from "../../../../../redux/store";
 import { useNavigate } from "react-router-dom";
 
 interface IProfileProps {
-  user: any;
+  admin: any;
   loading: boolean;
   fetchUserProfile: () => void;
 }
 
 const Profile: React.FC<IProfileProps> = ({
-  user,
+  admin,
   loading,
   fetchUserProfile,
 }) => {
@@ -41,7 +40,7 @@ const Profile: React.FC<IProfileProps> = ({
             Profile
           </Typography>
           <Grid container display={"flex"} justifyContent={"center"}>
-            {user !== null ? (
+            {admin !== null ? (
               <>
                 <div
                   style={{
@@ -51,11 +50,11 @@ const Profile: React.FC<IProfileProps> = ({
                     textAlign: "center",
                   }}
                 >
-                  {user?.picture ? (
+                  {admin?.picture ? (
                     <Avatar
-                      src={`${process.env.REACT_APP_API}/adminImages/${user?.picture}`}
-                      alt={user?.firstname
-                        .concat(".", user?.lastname)
+                      src={`${process.env.REACT_APP_API}/adminImages/${admin?.picture}`}
+                      alt={admin?.firstname
+                        .concat(".", admin?.lastname)
                         .split(" ")
                         .map((n: any) => n[0])
                         .join("")
@@ -68,20 +67,20 @@ const Profile: React.FC<IProfileProps> = ({
                     />
                   ) : null}
                   <Typography variant="h4" gutterBottom>
-                    {user?.firstname} {user?.lastname}
+                    {admin?.firstname} {admin?.lastname}
                   </Typography>
                   <Typography variant="body1" gutterBottom>
-                    <b>Email:</b> {user?.email}
+                    <b>Email:</b> {admin?.email}
                   </Typography>
                   <Typography variant="body1" gutterBottom>
-                    <b>Phone:</b> {user?.phone}
+                    <b>Phone:</b> {admin?.phone}
                   </Typography>
                   <Button
                     variant="contained"
                     color="primary"
                     size="large"
                     style={{ marginTop: "10px", width: "100%" }}
-                    onClick={() => navigate(`/update/${user?._id}`)}
+                    onClick={() => navigate(`/update/${admin?._id}`)}
                   >
                     Update
                   </Button>
@@ -108,9 +107,9 @@ const Profile: React.FC<IProfileProps> = ({
   );
 };
 
-const mapStateToProps = (state: RootState) => ({
-  user: state.auth.user,
-  loading: state.auth.loading,
+const mapStateToProps = (state: any) => ({
+  admin: state.user,
+  loading: state.loading,
 });
 
 const mapDispatchToProps = {

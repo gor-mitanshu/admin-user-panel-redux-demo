@@ -4,7 +4,6 @@ import "./Layout.css";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./sidebar/Sidebar";
 import Navbar from "./navbar/Navbar";
-import { RootState } from "../../redux/store";
 import { connect } from "react-redux";
 import { fetchUserProfile } from "../../redux/authAction";
 
@@ -15,7 +14,6 @@ interface ILayoutProps {
 
 const Layout: React.FC<ILayoutProps> = ({ admin, fetchUserProfile }) => {
   const [isOpen, setIsClose] = useState<boolean>(true);
-
   useEffect(() => {
     fetchUserProfile();
   }, [fetchUserProfile]);
@@ -45,8 +43,8 @@ const Layout: React.FC<ILayoutProps> = ({ admin, fetchUserProfile }) => {
   );
 };
 
-const mapStateToProps = (state: RootState) => ({
-  admin: state.auth.user,
+const mapStateToProps = (state: any) => ({
+  admin: state.user,
 });
 
 const mapDispatchToProps = {

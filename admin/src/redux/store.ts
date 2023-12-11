@@ -1,14 +1,14 @@
-import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "./authReducer";
-// import thunk from "redux-thunk";
+import { createStore, applyMiddleware, Store } from "redux";
+import { thunk } from "redux-thunk";
+import reducer from "./authReducer";
+import {
+  DispatchLoggedUserType,
+  ILoggedUserAction,
+  ILoggedUserState,
+} from "./type";
 
-const store = configureStore({
-  reducer: {
-    auth: authReducer,
-  },
-  // middleware: [thunk],
-});
+const store: Store<ILoggedUserState, ILoggedUserAction> & {
+  dispatch: DispatchLoggedUserType;
+} = createStore(reducer, applyMiddleware(thunk));
 
 export default store;
-
-export type RootState = ReturnType<typeof store.getState>;

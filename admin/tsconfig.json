@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@app/*": ["src/*"]
-    },
+    // "baseUrl": ".",
+    // "paths": {
+    //   "@app/*": ["src/*"]
+    // },
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
