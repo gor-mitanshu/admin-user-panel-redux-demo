@@ -1,65 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import "../dashboard/Dashboard.css";
 import { Box, Card, CardContent, Grid, Typography } from "@mui/material";
-import axios from "axios";
 import { Block, Check, Group } from "@mui/icons-material";
 import EChart from "../echart/EChartData";
 import { Helmet } from "react-helmet";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { fetchUserCounts } from "../../../../redux/action/getUserCountAction";
 
 const Dashboard = (): JSX.Element => {
-  const [userCounts, setUserCounts] = useState({
-    total: 0,
-    active: 0,
-    inactive: 0,
-  });
-  const animationDuration = 800;
-
+  const dispatch = useDispatch();
+  const userCounts = useSelector((state: any) => state.userCounts.userCounts);
   useEffect(() => {
-    const fetchUserCounts = async () => {
-      try {
-        const accessToken: any = localStorage.getItem("token");
-        const accessTokenwithoutQuotes = JSON.parse(accessToken);
-        const response = await axios.get(
-          `${process.env.REACT_APP_API}/user/getUserCounts`,
-          {
-            headers: { Authorization: `Bearer ${accessTokenwithoutQuotes}` },
-          }
-        );
-        const { data } = response.data;
-
-        const updateCounts = () => {
-          setUserCounts((prevCounts) => ({
-            total:
-              prevCounts.total < data.total ? prevCounts.total + 1 : data.total,
-            active:
-              prevCounts.active < data.active
-                ? prevCounts.active + 1
-                : data.active,
-            inactive:
-              prevCounts.inactive < data.inactive
-                ? prevCounts.inactive + 1
-                : data.inactive,
-          }));
-        };
-
-        const interval = animationDuration / Math.max(data.total, 1);
-        let step = 0;
-
-        const animation = setInterval(() => {
-          updateCounts();
-          step++;
-          if (step >= data.total) {
-            clearInterval(animation);
-          }
-        }, interval);
-      } catch (error) {
-        console.error("Error fetching user counts:", error);
-      }
-    };
-
-    fetchUserCounts();
-  }, []);
-
+    dispatch<any>(fetchUserCounts());
+  }, [dispatch]);
   return (
     <>
       <Helmet>

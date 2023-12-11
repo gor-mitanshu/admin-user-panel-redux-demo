@@ -13,16 +13,10 @@ import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { Helmet } from "react-helmet";
 import DialogModal from "../../dailogueBox/DialogModal";
-
-interface IUsers {
-  id?: string;
-  firstname: string;
-  lastname: string;
-  email: string;
-  phone: string;
-  password: string;
-  picture: string;
-}
+import { useDispatch } from "react-redux";
+import { IAppState } from "../../../../../redux/type";
+import { useSelector } from "react-redux";
+import { fetchUsers } from "../../../../../redux/action/getAllUsers";
 
 function getRandomColor() {
   const red = Math.floor(Math.random() * 255);
@@ -40,35 +34,23 @@ function getInitials(name: any) {
 
 const Users = () => {
   const navigate = useNavigate();
-  const [users, setUsers] = useState<IUsers | any>([]);
-  const [isloading, setLoading] = useState<boolean>(false);
+  const dispatch = useDispatch();
+  const usersState = useSelector((state: IAppState) => state.users);
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     userId?: string;
   }>({ open: false });
-
   const getUsers = async () => {
     try {
-      const accessToken: any = localStorage.getItem("token");
-      const accessTokenwithoutQuotes = JSON.parse(accessToken);
-      const res = await axios.get(
-        `${process.env.REACT_APP_API}/user/getUsers`,
-        {
-          headers: { Authorization: `Bearer ${accessTokenwithoutQuotes}` },
-        }
-      );
-      if (!!res) {
-        setLoading(false);
-        setUsers(res.data.data);
-      }
+      dispatch<any>(fetchUsers());
     } catch (error: any) {
       console.log(error.response.data.message);
     }
   };
   useEffect(() => {
-    setLoading(true);
     getUsers();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch]);
 
   const onUserDelete = (id: string) => {
     setConfirmDialog({ open: true, userId: id });
@@ -104,7 +86,7 @@ const Users = () => {
     setConfirmDialog({ open: false, userId: undefined });
   };
 
-  const rows = users.map((user: any, key: any) => ({
+  const rows = usersState.users.map((user: any, key: any) => ({
     id: key + 1,
     userId: user._id,
     firstname: user.firstname,
@@ -119,14 +101,7 @@ const Users = () => {
             ? `${process.env.REACT_APP_API}/userImages/${user.picture}`
             : getInitials(user.firstname)
         }
-        // alt={user.firstname
-        //   .concat(".", user.lastname)
-        //   .split(" ")
-        //   .map((initialLetter: any) => initialLetter[0])
-        //   .join("")
-        //   .toUpperCase()}
         alt={getInitials(user.firstname)}
-        // sx={{ height: "100%", width: "100%" }}
         style={{ backgroundColor: getRandomColor() }}
       />
     ),
@@ -273,7 +248,7 @@ const Users = () => {
         >
           Users
         </Typography>
-        {!isloading ? (
+        {usersState.loading === false ? (
           <Grid
             item
             sx={{
@@ -284,7 +259,7 @@ const Users = () => {
             }}
             xs={12}
           >
-            {users.length > 0 ? (
+            {usersState.users.length > 0 ? (
               <Grid item lg={12} sm={12} xs={11}>
                 <DataGrid
                   columns={columns}
@@ -294,9 +269,9 @@ const Users = () => {
                   // getRowHeight={() => "auto"}
                   // getEstimatedRowHeight={() => 200}
                   initialState={{
-                    ...users.initialState,
                     pagination: { paginationModel: { pageSize: 7 } },
                   }}
+                  {...usersState}
                   pageSizeOptions={[7, 10, 25]}
                   sx={{ background: "#a9a9a914" }}
                   slots={{ toolbar: GridToolbar }}

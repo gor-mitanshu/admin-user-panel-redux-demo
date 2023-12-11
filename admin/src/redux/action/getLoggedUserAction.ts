@@ -1,6 +1,6 @@
 import axios from "axios";
-import * as actionTypes from "./actionTypes";
-import { DispatchLoggedUserType } from "./type";
+import * as actionTypes from "../actionType/getLoggedUserActionType";
+import { DispatchLoggedUserType } from "../type";
 
 const userProfileRequest = (): actionTypes.UserProfileRequestAction => ({
   type: actionTypes.USER_PROFILE_REQUEST,

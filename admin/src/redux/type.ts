@@ -37,3 +37,9 @@ export type IUsersAction =
   | { type: "USERS_FAILURE" };
 
 export type DispatchUsersType = (args: IUsersAction) => IUsersAction;
+
+// Combine with the existing types
+export type IAppState = {
+  loggedUser: ILoggedUserState;
+  users: IUsersState; // Add this line
+};

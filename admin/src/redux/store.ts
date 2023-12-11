@@ -1,14 +1,15 @@
-import { createStore, applyMiddleware, Store } from "redux";
+import { createStore, applyMiddleware, combineReducers } from "redux";
 import { thunk } from "redux-thunk";
-import reducer from "./authReducer";
-import {
-  DispatchLoggedUserType,
-  ILoggedUserAction,
-  ILoggedUserState,
-} from "./type";
+import getLoggedUserReducer from "./reducer/getLoggedProfileReducer";
+import getUsersReducer from "./reducer/getAllUsersReducer";
+import getUserCountsReducer from "./reducer/getUserCountsReducer";
 
-const store: Store<ILoggedUserState, ILoggedUserAction> & {
-  dispatch: DispatchLoggedUserType;
-} = createStore(reducer, applyMiddleware(thunk));
+const rootReducer: any = combineReducers({
+  admin: getLoggedUserReducer,
+  users: getUsersReducer,
+  userCounts: getUserCountsReducer,
+});
+
+const store: any = createStore(rootReducer, applyMiddleware(thunk));
 
 export default store;

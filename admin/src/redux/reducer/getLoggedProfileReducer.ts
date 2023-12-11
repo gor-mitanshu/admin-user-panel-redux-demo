@@ -1,5 +1,5 @@
-import * as actionTypes from "./actionTypes";
-import { ILoggedUserAction } from "./type";
+import * as actionTypes from "../actionType/getLoggedUserActionType";
+import { ILoggedUserAction } from "../type";
 
 const initialState = {
   user: {
@@ -15,7 +15,10 @@ const initialState = {
   loading: false,
 };
 
-const reducer = (state = initialState, action: ILoggedUserAction): any => {
+const getLoggedUserReducer = (
+  state = initialState,
+  action: ILoggedUserAction
+): any => {
   switch (action.type) {
     case actionTypes.GET_LOGGEDUSER:
       return {
@@ -38,4 +41,4 @@ const reducer = (state = initialState, action: ILoggedUserAction): any => {
   }
 };
 
-export default reducer;
+export default getLoggedUserReducer;

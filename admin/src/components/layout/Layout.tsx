@@ -5,13 +5,12 @@ import { Outlet } from "react-router-dom";
 import Sidebar from "./sidebar/Sidebar";
 import Navbar from "./navbar/Navbar";
 import { connect } from "react-redux";
-import { fetchUserProfile } from "../../redux/authAction";
+import { fetchUserProfile } from "../../redux/action/getLoggedUserAction";
 
 interface ILayoutProps {
   admin: any;
   fetchUserProfile: () => void;
 }
-
 const Layout: React.FC<ILayoutProps> = ({ admin, fetchUserProfile }) => {
   const [isOpen, setIsClose] = useState<boolean>(true);
   useEffect(() => {
@@ -44,7 +43,7 @@ const Layout: React.FC<ILayoutProps> = ({ admin, fetchUserProfile }) => {
 };
 
 const mapStateToProps = (state: any) => ({
-  admin: state.user,
+  admin: state.admin.user,
 });
 
 const mapDispatchToProps = {

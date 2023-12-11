@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
-import { connect } from "react-redux";
-import { fetchUserProfile } from "../../../../../redux/authAction";
+import { fetchUserProfile } from "../../../../../redux/action/getLoggedUserAction";
 import {
   Avatar,
   Typography,
@@ -9,26 +8,28 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
-interface IProfileProps {
-  admin: any;
-  loading: boolean;
-  fetchUserProfile: () => void;
-}
-
-const Profile: React.FC<IProfileProps> = ({
-  admin,
-  loading,
-  fetchUserProfile,
-}) => {
+const Profile: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const userState = useSelector((state: any) => state.admin);
+  const getLoggedProfile = async () => {
+    try {
+      dispatch<any>(fetchUserProfile());
+    } catch (error: any) {
+      console.log(error.response.data.message);
+    }
+  };
   useEffect(() => {
-    fetchUserProfile();
-  }, [fetchUserProfile]);
+    getLoggedProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch]);
 
   return (
     <>
-      {!loading ? (
+      {!userState.loading ? (
         <>
           <Typography
             textAlign={"center"}
@@ -40,7 +41,7 @@ const Profile: React.FC<IProfileProps> = ({
             Profile
           </Typography>
           <Grid container display={"flex"} justifyContent={"center"}>
-            {admin !== null ? (
+            {userState.user !== null ? (
               <>
                 <div
                   style={{
@@ -50,11 +51,11 @@ const Profile: React.FC<IProfileProps> = ({
                     textAlign: "center",
                   }}
                 >
-                  {admin?.picture ? (
+                  {userState.user?.picture ? (
                     <Avatar
-                      src={`${process.env.REACT_APP_API}/adminImages/${admin?.picture}`}
-                      alt={admin?.firstname
-                        .concat(".", admin?.lastname)
+                      src={`${process.env.REACT_APP_API}/adminImages/${userState.user?.picture}`}
+                      alt={userState.user?.firstname
+                        .concat(".", userState.user?.lastname)
                         .split(" ")
                         .map((n: any) => n[0])
                         .join("")
@@ -67,20 +68,20 @@ const Profile: React.FC<IProfileProps> = ({
                     />
                   ) : null}
                   <Typography variant="h4" gutterBottom>
-                    {admin?.firstname} {admin?.lastname}
+                    {userState.user?.firstname} {userState.user?.lastname}
                   </Typography>
                   <Typography variant="body1" gutterBottom>
-                    <b>Email:</b> {admin?.email}
+                    <b>Email:</b> {userState.user?.email}
                   </Typography>
                   <Typography variant="body1" gutterBottom>
-                    <b>Phone:</b> {admin?.phone}
+                    <b>Phone:</b> {userState.user?.phone}
                   </Typography>
                   <Button
                     variant="contained"
                     color="primary"
                     size="large"
                     style={{ marginTop: "10px", width: "100%" }}
-                    onClick={() => navigate(`/update/${admin?._id}`)}
+                    onClick={() => navigate(`/update/${userState.user?._id}`)}
                   >
                     Update
                   </Button>
@@ -107,13 +108,4 @@ const Profile: React.FC<IProfileProps> = ({
   );
 };
 
-const mapStateToProps = (state: any) => ({
-  admin: state.user,
-  loading: state.loading,
-});
-
-const mapDispatchToProps = {
-  fetchUserProfile,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Profile);
+export default Profile;
