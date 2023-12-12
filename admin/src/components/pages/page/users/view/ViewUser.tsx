@@ -67,7 +67,6 @@ const ViewUser = () => {
 
   const openComposeModal = () => {
     setComposeModalOpen(true);
-    debugger;    
   };
 
   const closeComposeModal = () => {
