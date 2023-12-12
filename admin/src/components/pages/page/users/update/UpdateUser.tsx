@@ -66,19 +66,19 @@ const UpdateUser = () => {
     try {
       await dispatch<any>(getUserById(id));
       setInitialPicture(user?.picture);
-      // setEditedUser({
-      //   ...user,
-      //   picture: user?.picture || "",
-      // });
       setEditedUser({
-        firstname: user.firstname,
-        lastname: user.lastname,
-        email: user.email,
-        phone: user.phone,
-        password: user.password,
-        status: user.status,
+        ...user,
         picture: user?.picture || "",
       });
+      // setEditedUser({
+      //   firstname: user.firstname,
+      //   lastname: user.lastname,
+      //   email: user.email,
+      //   phone: user.phone,
+      //   password: user.password,
+      //   status: user.status,
+      //   picture: user?.picture || "",
+      // });
       initialUser.current = user;
     } catch (error: any) {
       console.error("Error fetching user details:", error);
@@ -180,24 +180,16 @@ const UpdateUser = () => {
   };
 
   const hasChanges = () => {
-    console.log("editedUser", editedUser);
-    console.log("initialUser.current", initialUser.current);
-
-    const hasChanges =
+    return (
       editedUser.firstname !== initialUser.current.firstname ||
       editedUser.lastname !== initialUser.current.lastname ||
       editedUser.email !== initialUser.current.email ||
       editedUser.phone !== initialUser.current.phone ||
       editedUser.status !== initialUser.current.status ||
       (imageChanged &&
-        (editedUser.picture instanceof File &&
-        initialUser.current.picture instanceof File
-          ? editedUser.picture.name !== initialUser.current.picture.name
-          : editedUser.picture !== initialUser.current.picture));
-
-    console.log("hasChanges", hasChanges);
-
-    return hasChanges;
+        editedUser.picture instanceof File &&
+        editedUser.picture !== initialUser.current.picture)
+    );
   };
 
   const handleOpenDialog = () => {
