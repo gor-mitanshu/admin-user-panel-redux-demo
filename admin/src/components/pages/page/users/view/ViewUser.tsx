@@ -6,12 +6,16 @@ import {
   Grid,
   CircularProgress,
 } from "@mui/material";
-import axios from "axios";
 import { useNavigate, useParams } from "react-router";
 import { Link } from "react-router-dom";
 import { ArrowBack } from "@mui/icons-material";
 import ComposeEmailModal from "../email/ComposeEmailModal";
 import { Helmet } from "react-helmet";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../../redux/store";
+import { fetchViewUser } from "../../../../../redux/action/viewUserAction";
+import { fetchUserProfile } from "../../../../../redux/action/getLoggedUserAction";
 
 interface IUser {
   _id: string;
@@ -24,59 +28,46 @@ interface IUser {
 }
 
 const ViewUser = () => {
+  const dispatch = useDispatch();
+  const viewUser: IUser = useSelector(
+    (state: RootState) => state.viewUser.user
+  );
+  const admin: any = useSelector((state: any) => state.admin.user);
+  // const adminLoading = useSelector((state: RootState) => state.admin.loading);
+  // const viewUserLoading = useSelector(
+  //   (state: RootState) => state.viewUser.loading
+  // );
+  const viewUserError = useSelector((state: RootState) => state.viewUser.error);
   const navigate = useNavigate();
   const { id } = useParams();
-  const [user, setUser] = useState<IUser | null>(null);
-  const [adminuser, setAdminUser] = useState<IUser | null>(null);
-
   const [isComposeModalOpen, setComposeModalOpen] = useState(false);
 
   useEffect(() => {
     const viewUser = async () => {
+      if (viewUserError) {
+        console.log(viewUserError);
+      }
       if (!!id) {
-        const accessToken: any = localStorage.getItem("token");
-        const accessTokenwithoutQuotes = JSON.parse(accessToken);
-        const res = await axios.get(
-          `${process.env.REACT_APP_API}/user/getUser/${id}`,
-          {
-            headers: { Authorization: `Bearer ${accessTokenwithoutQuotes}` },
-          }
-        );
-        setUser(res.data.data);
+        dispatch<any>(fetchViewUser(id));
       }
     };
     viewUser();
-  }, [id]);
+  }, [dispatch, id, viewUserError]);
 
   useEffect(() => {
     const getUser = async () => {
       try {
-        const accessToken: any = localStorage.getItem("token");
-        const accessTokenwithoutQuotes = JSON.parse(accessToken);
-        if (accessToken) {
-          const res = await axios.get(
-            `${process.env.REACT_APP_API}/admin/loggedProfile`,
-            {
-              headers: { Authorization: `Bearer ${accessTokenwithoutQuotes}` },
-            }
-          );
-          if (!!res) {
-            setAdminUser(res.data.data);
-          } else {
-            console.log("User not found");
-          }
-        } else {
-          console.log("error");
-        }
+        dispatch<any>(fetchUserProfile());
       } catch (error: any) {
         console.log(error.response.data.message);
       }
     };
     getUser();
-  }, []);
+  }, [dispatch]);
 
   const openComposeModal = () => {
     setComposeModalOpen(true);
+    debugger;    
   };
 
   const closeComposeModal = () => {
@@ -98,7 +89,7 @@ const ViewUser = () => {
         alignItems={"center"}
         flexWrap={"wrap"}
       >
-        {user ? (
+        {viewUser ? (
           <Grid item xs={11} sm={10} lg={6}>
             <div
               style={{
@@ -131,7 +122,7 @@ const ViewUser = () => {
                 paddingBottom: "40px",
                 borderRadius: "6px",
                 background:
-                  user.status === "active"
+                  viewUser.status === "active"
                     ? "rgba(0, 128, 0, 0.2)"
                     : "rgba(255, 0, 0, 0.2)",
               }}
@@ -147,12 +138,12 @@ const ViewUser = () => {
               >
                 <Avatar
                   src={
-                    user?.picture
-                      ? `${process.env.REACT_APP_API}/userImages/${user?.picture}`
+                    viewUser?.picture
+                      ? `${process.env.REACT_APP_API}/userImages/${viewUser?.picture}`
                       : ""
                   }
-                  alt={user.firstname
-                    .concat(".", user.lastname)
+                  alt={viewUser.firstname
+                    .concat(".", viewUser.lastname)
                     .split(" ")
                     .map((n: any) => n[0])
                     .join("")
@@ -165,9 +156,9 @@ const ViewUser = () => {
                   }}
                   // style={{ backgroundColor: getRandomColor() }}
                 />
-                {user.picture !== "" && (
+                {viewUser.picture !== "" && (
                   <Link
-                    to={`${process.env.REACT_APP_API}/userImages/${user?.picture}`}
+                    to={`${process.env.REACT_APP_API}/userImages/${viewUser?.picture}`}
                     target="_blank"
                   >
                     <Button
@@ -184,13 +175,13 @@ const ViewUser = () => {
               </div>
               <div>
                 <Typography variant="h4" marginBottom={2}>
-                  {user?.firstname} {user?.lastname}
+                  {viewUser?.firstname} {viewUser?.lastname}
                 </Typography>
                 <Typography variant="body1" marginBottom={2}>
-                  <b>Email:</b> {user?.email}
+                  <b>Email:</b> {viewUser?.email}
                 </Typography>
                 <Typography variant="body1" marginBottom={2}>
-                  <b>Phone:</b> {user?.phone}
+                  <b>Phone:</b> {viewUser?.phone}
                 </Typography>
                 <Typography variant="body1" marginBottom={2}>
                   <b>Status:</b>{" "}
@@ -203,18 +194,19 @@ const ViewUser = () => {
                       //     ? "rgba(255, 0, 0, 0.4)"
                       //     : "inherit",
                       color:
-                        user?.status === "active"
+                        viewUser?.status === "active"
                           ? "rgb(43,182,115)"
-                          : user?.status === "inactive"
+                          : viewUser?.status === "inactive"
                           ? "rgb(255,0,0)"
                           : "inherit",
                       fontWeight:
-                        user?.status === "active" || user?.status === "inactive"
+                        viewUser?.status === "active" ||
+                        viewUser?.status === "inactive"
                           ? 700
                           : "inherit",
                     }}
                   >
-                    {user?.status.toUpperCase()}
+                    {viewUser?.status.toUpperCase()}
                   </span>
                 </Typography>
               </div>
@@ -238,8 +230,8 @@ const ViewUser = () => {
       <ComposeEmailModal
         open={isComposeModalOpen}
         onClose={closeComposeModal}
-        to={user?.email || ""}
-        from={adminuser?.email || ""}
+        to={viewUser?.email || ""}
+        from={admin?.email || ""}
       />
     </>
   );

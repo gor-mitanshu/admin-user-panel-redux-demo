@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   Paper,
@@ -7,10 +7,17 @@ import {
   Button,
   CircularProgress,
 } from "@mui/material";
-import axios from "axios";
-import { toast } from "react-toastify";
 import Close from "@mui/icons-material/Close";
 import "../style.css";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../../redux/store";
+import {
+  clearComposeEmailMessage,
+  composeEmail,
+} from "../../../../../redux/action/composeEmailAction";
+import { toast } from "react-toastify";
+import DialogModal from "../../dailogueBox/DialogModal";
 
 interface ComposeEmailModalProps {
   open: boolean;
@@ -29,139 +36,174 @@ const ComposeEmailModal: React.FC<ComposeEmailModalProps> = ({
     subject: "",
     body: "",
   });
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [unsavedChanges, setUnsavedChanges] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  const showErrorWithTimeout = (errorMessage: string, timeout: number) => {
-    setError(errorMessage);
-    setTimeout(() => {
-      setError(null);
-    }, timeout);
-  };
+  const dispatch = useDispatch();
+  const message = useSelector((state: RootState) => state.composeEmail.message);
+  const loading = useSelector((state: RootState) => state.composeEmail.loading);
+  const errorMessage = useSelector(
+    (state: RootState) => state.composeEmail.error
+  );
+
+  useEffect(() => {
+    if (message) {
+      toast.success(message);
+      setEmailFields({
+        subject: "",
+        body: "",
+      });
+      onClose();
+    }
+    dispatch(clearComposeEmailMessage());
+  }, [message, onClose, dispatch]);
+
+  useEffect(() => {
+    if (errorMessage) {
+      toast.error(errorMessage);
+    }
+  }, [errorMessage]);
 
   const handleEmailFieldChange = (field: string, value: string) => {
     setEmailFields({
       ...emailFields,
       [field]: value,
     });
+    setUnsavedChanges(true);
   };
 
   const handleSendClick = async (e: any) => {
     e.preventDefault();
     try {
-      setIsLoading(true);
       if (!emailFields.subject) {
-        showErrorWithTimeout("Please Enter a Subject", 3000);
-        setIsLoading(false);
+        setError("Please Enter a Subject");
+        setTimeout(() => {
+          setError(null);
+        }, 3000);
         return;
       }
       if (!emailFields.body) {
-        showErrorWithTimeout("Body cannot be empty", 3000);
-        setIsLoading(false);
+        setError("Body cannot be empty");
+        setTimeout(() => {
+          setError(null);
+        }, 3000);
         return;
       }
       const { subject, body } = emailFields;
-      const send = {
+      const emailData = {
         to: to,
         from: from,
         subject: subject,
         body: body,
       };
-      const accessToken: any = localStorage.getItem("token");
-      const accessTokenwithoutQuotes = JSON.parse(accessToken);
-      const res = await axios.post(
-        `${process.env.REACT_APP_API}/admin/sendMail`,
-        send,
-        {
-          headers: { Authorization: `Bearer ${accessTokenwithoutQuotes}` },
-        }
-      );
-      if (!!res) {
-        toast.success(res.data.message);
-        onClose();
-        setIsLoading(false);
-        setEmailFields({
-          subject: "",
-          body: "",
-        });
-      }
+      dispatch<any>(composeEmail(emailData));
     } catch (error: any) {
-      setIsLoading(false);
-      console.log(error.response.data.message);
+      console.log(error);
     }
   };
 
-  return (
-    <Modal
-      open={open}
-      // onClose={onClose}
-      aria-labelledby="compose-email-modal"
-      aria-describedby="compose-email-form"
-    >
-      <Paper elevation={3} className="modal-container">
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <Button onClick={onClose} disableElevation>
-            <Close fontSize="large" color="action" />
-          </Button>
-        </div>
-        <Typography variant="h5" marginBottom={3}>
-          Compose an Email to <span style={{ color: "red" }}>{to}</span>
-        </Typography>
-        {error && (
-          <Typography textAlign={"center"} color={"error"} sx={{ mt: 2 }}>
-            <b>Error:</b> {error}
-          </Typography>
-        )}
-        <TextField
-          label="To"
-          fullWidth
-          margin="normal"
-          variant="outlined"
-          disabled
-          value={to}
-        />
-        <TextField
-          label="From"
-          fullWidth
-          margin="normal"
-          variant="outlined"
-          disabled
-          value={from}
-        />
-        <TextField
-          label="Subject"
-          fullWidth
-          margin="normal"
-          variant="outlined"
-          value={emailFields.subject}
-          onChange={(e) => handleEmailFieldChange("subject", e.target.value)}
-        />
-        <TextField
-          label="Body"
-          fullWidth
-          multiline
-          rows={4}
-          margin="normal"
-          variant="outlined"
-          value={emailFields.body}
-          onChange={(e) => handleEmailFieldChange("body", e.target.value)}
-        />
-        {!isLoading ? (
-          <Button
-            variant="contained"
-            color="error"
-            onClick={onClose}
-            sx={{ marginRight: "8px" }}
-          >
-            Cancel
-          </Button>
-        ) : null}
+  const handleCancelClick = () => {
+    if (unsavedChanges) {
+      setDialogOpen(true);
+    } else {
+      onClose();
+    }
+  };
 
-        <Button variant="contained" color="primary" onClick={handleSendClick}>
-          {isLoading ? <CircularProgress /> : "Send"}
-        </Button>
-      </Paper>
-    </Modal>
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+  };
+
+  const handleDialogConfirm = () => {
+    setDialogOpen(false);
+    onClose();
+  };
+
+  return (
+    <>
+      <Modal
+        open={open}
+        // onClose={onClose}
+        aria-labelledby="compose-email-modal"
+        aria-describedby="compose-email-form"
+      >
+        <Paper elevation={3} className="modal-container">
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <Button onClick={handleCancelClick} disableElevation>
+              <Close fontSize="large" color="action" />
+            </Button>
+          </div>
+          <Typography variant="h5" marginBottom={3}>
+            Compose an Email to <span style={{ color: "red" }}>{to}</span>
+          </Typography>
+          {error && (
+            <Typography textAlign={"center"} color={"error"} sx={{ mt: 2 }}>
+              <b>Error:</b> {error}
+            </Typography>
+          )}
+          <TextField
+            label="To"
+            fullWidth
+            margin="normal"
+            variant="outlined"
+            disabled
+            value={to}
+          />
+          <TextField
+            label="From"
+            fullWidth
+            margin="normal"
+            variant="outlined"
+            disabled
+            value={from}
+          />
+          <TextField
+            label="Subject"
+            fullWidth
+            margin="normal"
+            variant="outlined"
+            value={emailFields.subject}
+            onChange={(e) => handleEmailFieldChange("subject", e.target.value)}
+          />
+          <TextField
+            label="Body"
+            fullWidth
+            multiline
+            rows={4}
+            margin="normal"
+            variant="outlined"
+            value={emailFields.body}
+            onChange={(e) => handleEmailFieldChange("body", e.target.value)}
+          />
+          {!loading ? (
+            <Button
+              variant="contained"
+              color="error"
+              onClick={handleCancelClick}
+              sx={{ marginRight: "8px" }}
+            >
+              Cancel
+            </Button>
+          ) : null}
+
+          <Button variant="contained" color="primary" onClick={handleSendClick}>
+            {loading ? <CircularProgress /> : "Send"}
+          </Button>
+        </Paper>
+      </Modal>
+      <DialogModal
+        isOpen={dialogOpen}
+        handleClose={handleDialogClose}
+        handleConfirm={handleDialogConfirm}
+        title="Confirm Cancel"
+        message="You have unsaved changes. Are you sure you want to cancel?"
+        confirmButtonText="Yes, Cancel"
+        cancelButtonText="No, Continue Editing"
+        confirmColor="error"
+        cancelColor="primary"
+      />
+    </>
   );
 };
 
