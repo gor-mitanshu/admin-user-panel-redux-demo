@@ -13,6 +13,9 @@ import {
 } from "@mui/material";
 import { Helmet } from "react-helmet";
 import DialogModal from "../../dailogueBox/DialogModal";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { getUserById } from "../../../../../redux/action/getUserByIdAction";
 
 interface IUser {
   id?: string;
@@ -26,6 +29,12 @@ interface IUser {
 }
 
 const UpdateUser = () => {
+  const dispatch = useDispatch();
+
+  const user = useSelector((state: any) => state.userById.user);
+  // const loading = useSelector((state: any) => state.userById.loading);
+  console.log(user);
+
   const pictureInputRef = useRef<HTMLInputElement | null>(null);
   const { id } = useParams();
   const navigate = useNavigate();
@@ -53,24 +62,32 @@ const UpdateUser = () => {
     status: "",
   });
 
+  const getUser = async () => {
+    try {
+      await dispatch<any>(getUserById(id));
+      setInitialPicture(user?.picture);
+      // setEditedUser({
+      //   ...user,
+      //   picture: user?.picture || "",
+      // });
+      setEditedUser({
+        firstname: user.firstname,
+        lastname: user.lastname,
+        email: user.email,
+        phone: user.phone,
+        password: user.password,
+        status: user.status,
+        picture: user?.picture || "",
+      });
+      initialUser.current = user;
+    } catch (error: any) {
+      console.error("Error fetching user details:", error);
+    }
+  };
   useEffect(() => {
-    const getUser = async () => {
-      const accessToken: any = localStorage.getItem("token");
-      const accessTokenwithoutQuotes = JSON.parse(accessToken);
-      axios
-        .get(`${process.env.REACT_APP_API}/user/getUser/${id}`, {
-          headers: { Authorization: `Bearer ${accessTokenwithoutQuotes}` },
-        })
-        .then((response) => {
-          const userData = response.data.data;
-          setEditedUser(userData);
-          // Store the initial user data using useRef
-          initialUser.current = userData;
-          setInitialPicture(userData.picture);
-        });
-    };
     getUser();
-  }, [id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, id, user?.picture]);
 
   const showErrorWithTimeout = (errorMessage: string, timeout: number) => {
     setError(errorMessage);
@@ -163,16 +180,24 @@ const UpdateUser = () => {
   };
 
   const hasChanges = () => {
-    return (
+    console.log("editedUser", editedUser);
+    console.log("initialUser.current", initialUser.current);
+
+    const hasChanges =
       editedUser.firstname !== initialUser.current.firstname ||
       editedUser.lastname !== initialUser.current.lastname ||
       editedUser.email !== initialUser.current.email ||
       editedUser.phone !== initialUser.current.phone ||
       editedUser.status !== initialUser.current.status ||
       (imageChanged &&
-        editedUser.picture instanceof File &&
-        editedUser.picture !== initialUser.current.picture)
-    );
+        (editedUser.picture instanceof File &&
+        initialUser.current.picture instanceof File
+          ? editedUser.picture.name !== initialUser.current.picture.name
+          : editedUser.picture !== initialUser.current.picture));
+
+    console.log("hasChanges", hasChanges);
+
+    return hasChanges;
   };
 
   const handleOpenDialog = () => {

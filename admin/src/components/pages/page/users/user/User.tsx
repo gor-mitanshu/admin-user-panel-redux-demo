@@ -16,7 +16,7 @@ import DialogModal from "../../dailogueBox/DialogModal";
 import { useDispatch } from "react-redux";
 import { IAppState } from "../../../../../redux/type";
 import { useSelector } from "react-redux";
-import { fetchUsers } from "../../../../../redux/action/getAllUsers";
+import { fetchUsers } from "../../../../../redux/action/getAllUsersAction";
 
 function getRandomColor() {
   const red = Math.floor(Math.random() * 255);

@@ -7,6 +7,7 @@ import loginReducer from "./reducer/loginReducer";
 import viewUserReducer from "./reducer/viewUserReducer";
 import composeEmailReducer from "./reducer/composeEmailReducer";
 import updateUserReducer from "./reducer/updateUserReducer";
+import getUserByIdReducer from "./reducer/getUserByIdReducer";
 
 const rootReducer: any = combineReducers({
   admin: getLoggedUserReducer,
@@ -16,6 +17,7 @@ const rootReducer: any = combineReducers({
   viewUser: viewUserReducer,
   composeEmail: composeEmailReducer,
   userUpdate: updateUserReducer,
+  userById: getUserByIdReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

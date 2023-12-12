@@ -1,3 +1,5 @@
+import { IUserByIdState } from "./actionType/getUserByIdActionType";
+
 // Logged Profile Get thing
 export interface IUser {
   _id: any;
@@ -54,6 +56,7 @@ export type DispatchUsersType = (args: IUsersAction) => IUsersAction;
 export type IAppState = {
   loggedUser: ILoggedUserState;
   users: IUsersState;
+  userById: IUserByIdState;
   login: {
     token: string;
     loading: boolean;
