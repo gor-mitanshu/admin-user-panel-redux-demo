@@ -70,7 +70,6 @@ const Users = () => {
             },
           }
         );
-        console.log(res);
         if (res && res.data) {
           getUsers();
           toast.success(res.data.message);

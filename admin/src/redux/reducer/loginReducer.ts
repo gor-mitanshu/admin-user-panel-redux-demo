@@ -5,7 +5,7 @@ import {
 } from "../actionType/loginActionType";
 
 const initialState = {
-  user: null,
+  token: null,
   loading: false,
   error: null,
 };
@@ -21,13 +21,14 @@ const loginReducer = (state = initialState, action: any) => {
     case LOGIN_SUCCESS:
       return {
         ...state,
-        user: action.payload,
+        token: action.payload,
         loading: false,
         error: null,
       };
     case LOGIN_FAILURE:
       return {
         ...state,
+        token: null,
         loading: false,
         error: action.payload,
       };

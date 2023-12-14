@@ -14,10 +14,15 @@ import {
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { Helmet } from "react-helmet";
 import { useAuth } from "../../protectedRoute/AuthContext";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "../../../../redux/action/loginAction";
+import {
+  RootState,
+  // store
+} from "../../../../redux/store";
 
 interface IUser {
   email: string;
@@ -46,23 +51,24 @@ const defaultTheme = createTheme();
 
 const SignIn = () => {
   const { login } = useAuth();
-  const navigate = useNavigate();
   const { state } = useLocation();
-  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const loginState = useSelector((state: RootState) => state.login);
+  // console.log(loginState);
   const [user, setUser] = useState<IUser>({
     email: "",
     password: "",
   });
-  const [loading, setLoading] = useState<boolean>(false);
 
   const showErrorWithTimeout = (errorMessage: string, timeout: number) => {
-    setError(errorMessage);
+    toast.error(errorMessage);
     setTimeout(() => {
-      setError(null);
+      toast.dismiss();
     }, timeout);
   };
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setUser((prevUserDetails) => ({
       ...prevUserDetails,
@@ -72,36 +78,20 @@ const SignIn = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!user.email) {
-      showErrorWithTimeout("Please Enter Your Email", 3000);
-      return;
-    }
-    if (!user.password) {
-      showErrorWithTimeout("Please Enter Your Password", 3000);
-      return;
-    }
+
     try {
-      const body = {
-        email: user.email,
-        password: user.password,
-      };
-      const res = await axios.post(
-        `${process.env.REACT_APP_API}/admin/signin`,
-        body
-      );
-      if (!!res) {
-        setLoading(false);
-        login(res.data);
-        localStorage.setItem("token", JSON.stringify(res.data.data));
+      // console.log("Before login dispatch:", store.getState());
+      await dispatch<any>(loginUser(user));
+      // console.log("After login dispatch:", store.getState());
+
+      if (loginState.token) {
+        login(loginState.token.data);
+        localStorage.setItem("token", JSON.stringify(loginState.token.data));
         navigate(state?.path || "/", { replace: true });
-        toast.success(res.data.message);
+        toast.success("Login successful");
       }
-      setLoading(true);
     } catch (error: any) {
-      setLoading(false);
-      console.log(error);
       showErrorWithTimeout(error.response.data.message, 3000);
-      return;
     }
   };
 
@@ -113,7 +103,7 @@ const SignIn = () => {
       <ThemeProvider theme={defaultTheme}>
         <Container component="main" maxWidth="xs">
           <CssBaseline />
-          {!loading ? (
+          {!loginState.loading ? (
             <Paper
               elevation={5}
               sx={{
@@ -137,13 +127,13 @@ const SignIn = () => {
                   <Typography component="h1" variant="h5">
                     Sign in
                   </Typography>
-                  {error && (
+                  {loginState.error && (
                     <Typography
                       marginTop={1}
                       textAlign={"center"}
                       color="error"
                     >
-                      <b>Error:</b> {error}
+                      <b>Error:</b> {loginState.error}
                     </Typography>
                   )}
                   <Box

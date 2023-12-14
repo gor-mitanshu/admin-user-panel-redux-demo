@@ -15,9 +15,9 @@ export const loginRequest = () => ({
   type: LOGIN_REQUEST,
 });
 
-export const loginSuccess = (user: IUser) => ({
+export const loginSuccess = (token: string) => ({
   type: LOGIN_SUCCESS,
-  payload: user,
+  payload: token,
 });
 
 export const loginFailure = (error: string) => ({
@@ -27,6 +27,7 @@ export const loginFailure = (error: string) => ({
 
 export const loginUser = (user: IUser) => async (dispatch: Dispatch) => {
   dispatch(loginRequest());
+  console.log(user);
   try {
     const res = await axios.post(
       `${process.env.REACT_APP_API}/admin/signin`,
@@ -34,11 +35,12 @@ export const loginUser = (user: IUser) => async (dispatch: Dispatch) => {
     );
     if (!!res) {
       dispatch(loginSuccess(res.data));
-    } else {
-      console.log(res);
-      // dispatch(loginFailure(res.data.message));
+      return res;
     }
   } catch (error: any) {
-    dispatch(loginFailure(error.response.data.message));
+    console.error("Login Error:", error);
+    dispatch(
+      loginFailure(error.response?.data?.message || "An error occurred")
+    );
   }
 };

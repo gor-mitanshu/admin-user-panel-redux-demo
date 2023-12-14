@@ -76,7 +76,6 @@ const PaymentCard = ({ product }: any) => {
         }
       );
 
-      console.log(order);
       const options = {
         key: process.env.REACT_APP_KEY_ID,
         // amount: order.amount * 100,
@@ -116,7 +115,6 @@ const PaymentCard = ({ product }: any) => {
               headers: { Authorization: `Bearer ${accessTokenwithoutQuotes}` },
             }
           );
-          console.log(res);
           if (!!res && res.data.success) {
             setPaymentDetails(res.data.data);
             setReferenceNum(res.data.data.razorpay_order_id);

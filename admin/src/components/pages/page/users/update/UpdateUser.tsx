@@ -33,7 +33,6 @@ const UpdateUser = () => {
 
   const user = useSelector((state: any) => state.userById.user);
   // const loading = useSelector((state: any) => state.userById.loading);
-  console.log(user);
 
   const pictureInputRef = useRef<HTMLInputElement | null>(null);
   const { id } = useParams();
