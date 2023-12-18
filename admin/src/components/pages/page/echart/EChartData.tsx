@@ -2,12 +2,15 @@ import React, { useState, useEffect } from "react";
 import { Card } from "@mui/material";
 import ReactEcharts from "echarts-for-react";
 import axios from "axios";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../redux/store";
 
 interface IUsers {
   active: number;
   inactive: number;
 }
 const EChart = () => {
+  const loginToken = useSelector((state: RootState) => state.login.token);
   const [chartData, setChartData] = useState<IUsers | any>({
     active: 0,
     inactive: 0,
@@ -16,13 +19,11 @@ const EChart = () => {
   const categories = ["active", "inactive"];
 
   const getUsers = async () => {
-    const accessToken: any = localStorage.getItem("token");
-    const accessTokenwithoutQuotes = JSON.parse(accessToken);
     try {
       const res = await axios.get(
         `${process.env.REACT_APP_API}/user/getUsers`,
         {
-          headers: { Authorization: `Bearer ${accessTokenwithoutQuotes}` },
+          headers: { Authorization: `Bearer ${loginToken}` },
         }
       );
       const users = res.data.data;
@@ -47,6 +48,7 @@ const EChart = () => {
 
   useEffect(() => {
     getUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const options = {

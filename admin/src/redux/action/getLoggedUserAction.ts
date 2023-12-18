@@ -16,18 +16,15 @@ const userProfileFailure = (): actionTypes.UserProfileFailureAction => ({
 });
 
 export const fetchUserProfile = () => {
-  return async (dispatch: DispatchLoggedUserType) => {
+  return async (dispatch: DispatchLoggedUserType, getState: any) => {
     try {
       dispatch(userProfileRequest());
-
-      const accessToken: any = localStorage.getItem("token");
-      const accessTokenWithoutQuotes = JSON.parse(accessToken);
-
-      if (accessToken) {
+      const token = getState().login.token;
+      if (token) {
         const res = await axios.get(
           `${process.env.REACT_APP_API}/admin/loggedProfile`,
           {
-            headers: { Authorization: `Bearer ${accessTokenWithoutQuotes}` },
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
 

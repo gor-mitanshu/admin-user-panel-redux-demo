@@ -12,12 +12,6 @@ import storage from "redux-persist/lib/storage";
 import { persistStore, persistReducer } from "redux-persist";
 import { Tuple, configureStore } from "@reduxjs/toolkit";
 
-const persistConfig: any = {
-  key: "auth",
-  storage,
-  whitelist: ["loginReducer"],
-};
-
 const rootReducer: any = combineReducers({
   admin: getLoggedUserReducer,
   users: getUsersReducer,
@@ -28,6 +22,11 @@ const rootReducer: any = combineReducers({
   userUpdate: updateUserReducer,
   userById: getUserByIdReducer,
 });
+const persistConfig: any = {
+  key: "auth",
+  storage,
+  whitelist: ["login"],
+};
 const persistedReducer: any = persistReducer(persistConfig, rootReducer);
 export type RootState = ReturnType<typeof rootReducer>;
 

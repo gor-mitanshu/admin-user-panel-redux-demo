@@ -55,7 +55,7 @@ const SignIn = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const loginState = useSelector((state: RootState) => state.login);
-  // console.log(loginState);
+  console.log(loginState);
   const [user, setUser] = useState<IUser>({
     email: "",
     password: "",
@@ -85,8 +85,8 @@ const SignIn = () => {
       // console.log("After login dispatch:", store.getState());
 
       if (loginState.token) {
-        login(loginState.token.data);
-        localStorage.setItem("token", JSON.stringify(loginState.token.data));
+        login(loginState.token);
+        localStorage.setItem("token", JSON.stringify(loginState.token));
         navigate(state?.path || "/", { replace: true });
         toast.success("Login successful");
       }

@@ -235,6 +235,9 @@ const UpdateProfile = () => {
                     name="email"
                     value={editedUser?.email}
                     onChange={handleChange}
+                    InputProps={{
+                      readOnly: true,
+                    }}
                   />
                 </Grid>
                 <Grid item xs={12}>

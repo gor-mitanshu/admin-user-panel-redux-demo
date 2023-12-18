@@ -22,16 +22,14 @@ export const fetchViewUserFailure = (error: string) => ({
 });
 
 export const fetchViewUser = (userId: string) => {
-  return async (dispatch: Dispatch) => {
+  return async (dispatch: Dispatch, getState: any) => {
     dispatch(fetchViewUserRequest());
-
+    const token = getState().login.token;
     try {
-      const accessToken: any = localStorage.getItem("token");
-      const accessTokenwithoutQuotes = JSON.parse(accessToken);
       const res = await axios.get(
         `${process.env.REACT_APP_API}/user/getUser/${userId}`,
         {
-          headers: { Authorization: `Bearer ${accessTokenwithoutQuotes}` },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       dispatch(fetchViewUserSuccess(res.data.data));

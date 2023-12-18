@@ -27,15 +27,17 @@ export const loginFailure = (error: string) => ({
 
 export const loginUser = (user: IUser) => async (dispatch: Dispatch) => {
   dispatch(loginRequest());
-  console.log(user);
   try {
     const res = await axios.post(
       `${process.env.REACT_APP_API}/admin/signin`,
       user
     );
-    if (!!res) {
-      dispatch(loginSuccess(res.data));
+
+    if (!!res && res.data && res.data.success === true && res.status === 200) {
+      dispatch(loginSuccess(res.data.data));
       return res;
+    } else {
+      console.log(res, "error");
     }
   } catch (error: any) {
     console.error("Login Error:", error);

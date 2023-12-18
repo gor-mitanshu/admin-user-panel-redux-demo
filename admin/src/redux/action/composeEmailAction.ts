@@ -5,6 +5,7 @@ import {
   COMPOSE_EMAIL_FAILURE,
   CLEAR_COMPOSE_EMAIL_MESSAGE,
 } from "../actionType/composeEmailActionType";
+import { Dispatch } from "redux";
 
 export const composeEmailRequest = () => ({
   type: COMPOSE_EMAIL_REQUEST,
@@ -24,20 +25,22 @@ export const clearComposeEmailMessage = () => ({
   type: CLEAR_COMPOSE_EMAIL_MESSAGE,
 });
 
-export const composeEmail = (emailData: any) => async (dispatch: any) => {
-  dispatch(composeEmailRequest());
-  try {
-    const accessToken: any = localStorage.getItem("token");
-    const accessTokenwithoutQuotes = JSON.parse(accessToken);
-    const res = await axios.post(
-      `${process.env.REACT_APP_API}/admin/sendMail`,
-      emailData,
-      {
-        headers: { Authorization: `Bearer ${accessTokenwithoutQuotes}` },
+export const composeEmail =
+  (emailData: any) => async (dispatch: Dispatch, getState: any) => {
+    dispatch(composeEmailRequest());
+    try {
+      const token = getState().login.token;
+      if (token) {
+        const res = await axios.post(
+          `${process.env.REACT_APP_API}/admin/sendMail`,
+          emailData,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        dispatch(composeEmailSuccess(res.data.message));
       }
-    );
-    dispatch(composeEmailSuccess(res.data.message));
-  } catch (error: any) {
-    dispatch(composeEmailFailure(error.response.data.message));
-  }
-};
+    } catch (error: any) {
+      dispatch(composeEmailFailure(error.response.data.message));
+    }
+  };

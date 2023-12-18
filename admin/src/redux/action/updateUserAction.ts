@@ -8,12 +8,11 @@ import {
 } from "../actionType/updateUserActionTypes";
 
 export const updateUser =
-  (userId: string, userData: any) => async (dispatch: Dispatch) => {
+  (userId: string, userData: any) =>
+  async (dispatch: Dispatch, getState: any) => {
     dispatch({ type: UPDATE_USER_REQUEST });
-
+    const token = getState().login.token;
     try {
-      const accessToken: any = localStorage.getItem("token");
-      const accessTokenwithoutQuotes = JSON.parse(accessToken);
       const formData = new FormData();
 
       formData.append("firstname", userData.firstname);
@@ -32,7 +31,7 @@ export const updateUser =
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${accessTokenwithoutQuotes}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );

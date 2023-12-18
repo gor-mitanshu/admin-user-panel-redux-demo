@@ -16,22 +16,21 @@ const usersFailure = (): actionTypes.UsersFailureAction => ({
 });
 
 export const fetchUsers = () => {
-  return async (dispatch: DispatchUsersType) => {
+  return async (dispatch: DispatchUsersType, getState: any) => {
     try {
       dispatch(usersRequest());
+      const token = getState().login.token;
+      if (token) {
+        const res = await axios.get(
+          `${process.env.REACT_APP_API}/user/getUsers`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
-      const accessToken: any = localStorage.getItem("token");
-      const accessTokenWithoutQuotes = JSON.parse(accessToken);
-
-      const res = await axios.get(
-        `${process.env.REACT_APP_API}/user/getUsers`,
-        {
-          headers: { Authorization: `Bearer ${accessTokenWithoutQuotes}` },
+        if (!!res) {
+          dispatch(usersSuccess(res.data.data));
         }
-      );
-
-      if (!!res) {
-        dispatch(usersSuccess(res.data.data));
       }
     } catch (error: any) {
       console.log(error.response.data.message);

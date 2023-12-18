@@ -18,22 +18,20 @@ const userCountsFailure = (): actionTypes.UserCountsFailureAction => ({
 });
 
 export const fetchUserCounts = () => {
-  return async (dispatch: Dispatch<AnyAction>) => {
+  return async (dispatch: Dispatch<AnyAction>, getState: any) => {
     try {
       dispatch(userCountsRequest());
-
-      const accessToken: any = localStorage.getItem("token");
-      const accessTokenWithoutQuotes = JSON.parse(accessToken);
-
-      const response = await axios.get(
-        `${process.env.REACT_APP_API}/user/getUserCounts`,
-        {
-          headers: { Authorization: `Bearer ${accessTokenWithoutQuotes}` },
-        }
-      );
-
-      const { data } = response.data;
-      dispatch(getUserCountsSuccess(data));
+      const token = getState().login.token;
+      if (token) {
+        const response = await axios.get(
+          `${process.env.REACT_APP_API}/user/getUserCounts`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const { data } = response.data;
+        dispatch(getUserCountsSuccess(data));
+      }
     } catch (error) {
       console.error("Error fetching user counts:", error);
       dispatch(userCountsFailure());
