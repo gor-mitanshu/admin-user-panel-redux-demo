@@ -18,11 +18,8 @@ import { toast } from "react-toastify";
 import { Helmet } from "react-helmet";
 import { useAuth } from "../../protectedRoute/AuthContext";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "../../../../redux/action/loginAction";
-import {
-  RootState,
-  // store
-} from "../../../../redux/store";
+import { loginTokenUpdate } from "../../../../redux/action/loginAction";
+import * as authService from "../../../../service/commonService";
 
 interface IUser {
   email: string;
@@ -54,8 +51,8 @@ const SignIn = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const loginState = useSelector((state: RootState) => state.login);
-
+  const loginState = useSelector((state: any) => state.login);
+  console.log(loginState);
   const [user, setUser] = useState<IUser>({
     email: "",
     password: "",
@@ -78,20 +75,21 @@ const SignIn = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     try {
-      // console.log("Before login dispatch:", store.getState());
-      await dispatch<any>(loginUser(user));
-      // console.log("After login dispatch:", store.getState());
-
-      if (loginState.token) {
-        login(loginState.token);
-        localStorage.setItem("token", JSON.stringify(loginState.token));
+      const response = await authService.login(user);
+      if (response && response.success === true) {
+        const data = response.data;
+        dispatch(loginTokenUpdate(data));
+        login(data);
         navigate(state?.path || "/", { replace: true });
-        toast.success("Login successful");
+        toast.success(response.message);
+      } else {
+        console.log(response);
+        // toast.error(response.)
       }
     } catch (error: any) {
-      showErrorWithTimeout(error.response.data.message, 3000);
+      // console.log("Login Error:", error);
+      showErrorWithTimeout(error, 3000);
     }
   };
 

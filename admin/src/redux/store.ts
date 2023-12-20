@@ -9,7 +9,13 @@ import composeEmailReducer from "./reducer/composeEmailReducer";
 import getUserByIdReducer from "./reducer/getUserByIdReducer";
 import storage from "redux-persist/lib/storage";
 import { persistStore, persistReducer } from "redux-persist";
-import { Tuple, configureStore } from "@reduxjs/toolkit";
+import { configureStore } from "@reduxjs/toolkit";
+
+const persistConfig: any = {
+  key: "root",
+  storage,
+  whitelist: ["login"],
+};
 
 const rootReducer: any = combineReducers({
   admin: getLoggedUserReducer,
@@ -20,17 +26,17 @@ const rootReducer: any = combineReducers({
   composeEmail: composeEmailReducer,
   userById: getUserByIdReducer,
 });
-const persistConfig: any = {
-  key: "auth",
-  storage,
-  whitelist: ["login"],
-};
+
 const persistedReducer: any = persistReducer(persistConfig, rootReducer);
 export type RootState = ReturnType<typeof rootReducer>;
 
 const store = configureStore({
   reducer: persistedReducer,
-  middleware: () => new Tuple(thunk),
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }).concat(thunk),
+  // devTools: process.env.NODE_ENV !== "production",
 });
 
 const persistor = persistStore(store);

@@ -105,11 +105,14 @@ const adminController = {
 
      signin: async (req, res) => {
           try {
-               const { email } = req.body;
+               const { email, password } = req.body;
                const admin = await Admin.findOne({ email: email });
 
                if (!email) {
                     return res.status(400).send({ message: "Please Enter the Email", success: false });
+               }
+               if (!password) {
+                    return res.status(400).send({ message: "Please Enter the Password", success: false });
                }
 
                if (!admin) {
