@@ -14,10 +14,12 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../../../redux/store";
 import {
   clearComposeEmailMessage,
-  composeEmail,
+  composeEmailFailure,
+  composeEmailSuccess,
 } from "../../../../../redux/action/composeEmailAction";
 import { toast } from "react-toastify";
 import DialogModal from "../../dailogueBox/DialogModal";
+import { composeEmailService } from "../../../../../service/commonService";
 
 interface ComposeEmailModalProps {
   open: boolean;
@@ -41,6 +43,8 @@ const ComposeEmailModal: React.FC<ComposeEmailModalProps> = ({
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const dispatch = useDispatch();
+  const loginToken = useSelector((state: RootState) => state.login.token);
+  console.log(loginToken);
   const message = useSelector((state: RootState) => state.composeEmail.message);
   const loading = useSelector((state: RootState) => state.composeEmail.loading);
   const errorMessage = useSelector(
@@ -97,7 +101,25 @@ const ComposeEmailModal: React.FC<ComposeEmailModalProps> = ({
         subject: subject,
         body: body,
       };
-      dispatch<any>(composeEmail(emailData));
+      try {
+        if (loginToken) {
+          const message = await composeEmailService(emailData, loginToken);
+          console.log(message);
+          if (message) {
+            dispatch(composeEmailSuccess(message));
+          } else {
+            dispatch(composeEmailFailure("Failed to send email"));
+          }
+        } else {
+          dispatch(composeEmailFailure("Token not found"));
+        }
+      } catch (error: any) {
+        dispatch(
+          composeEmailFailure(
+            error.response?.data.message || "An error occurred"
+          )
+        );
+      }
     } catch (error: any) {
       console.log(error);
     }

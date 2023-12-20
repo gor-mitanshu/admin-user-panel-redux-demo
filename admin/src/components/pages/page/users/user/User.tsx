@@ -16,7 +16,13 @@ import DialogModal from "../../dailogueBox/DialogModal";
 import { useDispatch } from "react-redux";
 import { IAppState } from "../../../../../redux/type";
 import { useSelector } from "react-redux";
-import { fetchUsers } from "../../../../../redux/action/getAllUsersAction";
+import {
+  usersFailure,
+  usersRequest,
+  usersSuccess,
+} from "../../../../../redux/action/getAllUsersAction";
+import { getUsersService } from "../../../../../service/commonService";
+import { RootState } from "../../../../../redux/store";
 
 function getRandomColor() {
   const red = Math.floor(Math.random() * 255);
@@ -35,16 +41,31 @@ function getInitials(name: any) {
 const Users = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const loginToken = useSelector((state: RootState) => state.login.token);
   const usersState = useSelector((state: IAppState) => state.users);
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     userId?: string;
   }>({ open: false });
+
   const getUsers = async () => {
     try {
-      dispatch<any>(fetchUsers());
+      dispatch<any>(usersRequest());
+      if (loginToken) {
+        const response: any = await getUsersService(loginToken);
+        if (response && response.data) {
+          dispatch<any>(usersSuccess(response.data.data));
+        } else {
+          console.log("Users not found");
+          dispatch<any>(usersFailure());
+        }
+      } else {
+        console.log("Token not found");
+        dispatch<any>(usersFailure());
+      }
     } catch (error: any) {
-      console.log(error.response.data.message);
+      console.error("Error fetching users:", error);
+      dispatch<any>(usersFailure());
     }
   };
   useEffect(() => {
