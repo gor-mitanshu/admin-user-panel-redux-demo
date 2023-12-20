@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { fetchUserProfile } from "../../../../../redux/action/getLoggedUserAction";
+import { getUserProfile } from "../../../../../redux/action/getLoggedUserAction";
 import {
   Avatar,
   Typography,
@@ -17,7 +17,7 @@ const Profile: React.FC = () => {
   const userState = useSelector((state: any) => state.admin);
   const getLoggedProfile = async () => {
     try {
-      dispatch<any>(fetchUserProfile());
+      dispatch<any>(getUserProfile());
     } catch (error: any) {
       console.log(error.response.data.message);
     }
@@ -51,11 +51,11 @@ const Profile: React.FC = () => {
                     textAlign: "center",
                   }}
                 >
-                  {userState.user?.picture ? (
+                  {userState.user?.data?.picture ? (
                     <Avatar
-                      src={`${process.env.REACT_APP_API}/adminImages/${userState.user?.picture}`}
-                      alt={userState.user?.firstname
-                        .concat(".", userState.user?.lastname)
+                      src={`${process.env.REACT_APP_API}/adminImages/${userState.user?.data?.picture}`}
+                      alt={userState.user?.data?.firstname
+                        .concat(".", userState.user?.data?.lastname)
                         .split(" ")
                         .map((n: any) => n[0])
                         .join("")
@@ -68,20 +68,23 @@ const Profile: React.FC = () => {
                     />
                   ) : null}
                   <Typography variant="h4" gutterBottom>
-                    {userState.user?.firstname} {userState.user?.lastname}
+                    {userState.user?.data?.firstname}{" "}
+                    {userState.user?.data?.lastname}
                   </Typography>
                   <Typography variant="body1" gutterBottom>
-                    <b>Email:</b> {userState.user?.email}
+                    <b>Email:</b> {userState.user?.data?.email}
                   </Typography>
                   <Typography variant="body1" gutterBottom>
-                    <b>Phone:</b> {userState.user?.phone}
+                    <b>Phone:</b> {userState.user?.data?.phone}
                   </Typography>
                   <Button
                     variant="contained"
                     color="primary"
                     size="large"
                     style={{ marginTop: "10px", width: "100%" }}
-                    onClick={() => navigate(`/update/${userState.user?._id}`)}
+                    onClick={() =>
+                      navigate(`/update/${userState.user?.data?._id}`)
+                    }
                   >
                     Update
                   </Button>

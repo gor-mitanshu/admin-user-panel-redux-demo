@@ -1,15 +1,10 @@
-import axios from "axios";
 import { Dispatch } from "redux";
 import {
   LOGIN_REQUEST,
   LOGIN_SUCCESS,
   LOGIN_FAILURE,
 } from "../actionType/loginActionType";
-
-interface IUser {
-  email: string;
-  password: string;
-}
+import * as authService from "../../service/loginService";
 
 export const loginRequest = () => ({
   type: LOGIN_REQUEST,
@@ -25,24 +20,16 @@ export const loginFailure = (error: string) => ({
   payload: error,
 });
 
-export const loginUser = (user: IUser) => async (dispatch: Dispatch) => {
-  dispatch(loginRequest());
-  try {
-    const res = await axios.post(
-      `${process.env.REACT_APP_API}/admin/signin`,
-      user
-    );
-
-    if (!!res && res.data && res.data.success === true && res.status === 200) {
-      dispatch(loginSuccess(res.data.data));
-      return res;
-    } else {
-      console.log(res, "error");
+export const loginUser =
+  (user: authService.IUser) => async (dispatch: Dispatch) => {
+    dispatch(loginRequest());
+    try {
+      const response = await authService.login(user);
+      const data = response.data;
+      dispatch(loginSuccess(data));
+      return data;
+    } catch (error: any) {
+      console.error("Login Error:", error);
+      dispatch(loginFailure(error));
     }
-  } catch (error: any) {
-    console.error("Login Error:", error);
-    dispatch(
-      loginFailure(error.response?.data?.message || "An error occurred")
-    );
-  }
-};
+  };

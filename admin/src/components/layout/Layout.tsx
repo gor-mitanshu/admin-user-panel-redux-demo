@@ -5,17 +5,17 @@ import { Outlet } from "react-router-dom";
 import Sidebar from "./sidebar/Sidebar";
 import Navbar from "./navbar/Navbar";
 import { connect } from "react-redux";
-import { fetchUserProfile } from "../../redux/action/getLoggedUserAction";
+import { getUserProfile } from "../../redux/action/getLoggedUserAction";
 
 interface ILayoutProps {
   admin: any;
-  fetchUserProfile: () => void;
+  getUserProfile: () => void;
 }
-const Layout: React.FC<ILayoutProps> = ({ admin, fetchUserProfile }) => {
+const Layout: React.FC<ILayoutProps> = ({ admin, getUserProfile }) => {
   const [isOpen, setIsClose] = useState<boolean>(true);
   useEffect(() => {
-    fetchUserProfile();
-  }, [fetchUserProfile]);
+    getUserProfile();
+  }, [getUserProfile]);
 
   const toggleSidebar = () => {
     setIsClose((toogle) => !toogle);
@@ -43,11 +43,11 @@ const Layout: React.FC<ILayoutProps> = ({ admin, fetchUserProfile }) => {
 };
 
 const mapStateToProps = (state: any) => ({
-  admin: state.admin.user,
+  admin: state.admin.user.data,
 });
 
 const mapDispatchToProps = {
-  fetchUserProfile,
+  getUserProfile,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Layout);

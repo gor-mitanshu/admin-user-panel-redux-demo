@@ -1,6 +1,6 @@
-import axios from "axios";
 import * as actionTypes from "../actionType/getLoggedUserActionType";
 import { DispatchLoggedUserType } from "../type";
+import { fetchUserProfile } from "../../service/getLoggedUserService";
 
 const userProfileRequest = (): actionTypes.UserProfileRequestAction => ({
   type: actionTypes.USER_PROFILE_REQUEST,
@@ -15,31 +15,25 @@ const userProfileFailure = (): actionTypes.UserProfileFailureAction => ({
   type: actionTypes.USER_PROFILE_FAILURE,
 });
 
-export const fetchUserProfile = () => {
+export const getUserProfile = () => {
   return async (dispatch: DispatchLoggedUserType, getState: any) => {
     try {
       dispatch(userProfileRequest());
-      const token = getState().login.token;
+      const { token } = getState().login;
       if (token) {
-        const res = await axios.get(
-          `${process.env.REACT_APP_API}/admin/loggedProfile`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        if (!!res) {
-          dispatch(userProfileSuccess(res.data.data));
+        const response = await fetchUserProfile(token);
+        if (response && response.data) {
+          dispatch(userProfileSuccess(response.data));
         } else {
           console.log("User not found");
           dispatch(userProfileFailure());
         }
       } else {
-        console.log("error");
+        console.log("Token not found");
         dispatch(userProfileFailure());
       }
     } catch (error: any) {
-      console.log(error.response.data.message);
+      console.log(error.response?.data.message || "An error occurred");
       dispatch(userProfileFailure());
     }
   };

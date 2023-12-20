@@ -15,7 +15,7 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../../redux/store";
 import { fetchViewUser } from "../../../../../redux/action/viewUserAction";
-import { fetchUserProfile } from "../../../../../redux/action/getLoggedUserAction";
+import { getUserProfile } from "../../../../../redux/action/getLoggedUserAction";
 
 interface IUser {
   _id: string;
@@ -57,7 +57,7 @@ const ViewUser = () => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        dispatch<any>(fetchUserProfile());
+        dispatch<any>(getUserProfile());
       } catch (error: any) {
         console.log(error.response.data.message);
       }

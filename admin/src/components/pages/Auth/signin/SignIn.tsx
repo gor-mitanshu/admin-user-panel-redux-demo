@@ -55,7 +55,7 @@ const SignIn = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const loginState = useSelector((state: RootState) => state.login);
-  console.log(loginState);
+
   const [user, setUser] = useState<IUser>({
     email: "",
     password: "",

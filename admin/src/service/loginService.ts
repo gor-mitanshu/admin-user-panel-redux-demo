@@ -1,37 +1,25 @@
 import axios, { AxiosResponse } from "axios";
 
 const API_BASE_URL = process.env.REACT_APP_API;
+
 export interface IUser {
-  data: any;
-  _id: string;
-  firstname: string;
-  lastname: string;
   email: string;
-  phone: string;
-  picture: string;
+  password: string;
 }
 
 // Login
-export const loginService = async (
-  email: string,
-  password: string
-): Promise<AxiosResponse<any> | undefined> => {
+export const login = async (user: IUser) => {
   try {
-    const response = await axios.post<any>(`${API_BASE_URL}/user/signin`, {
-      email,
-      password,
-    });
-    localStorage.setItem("token", response.data.data);
-    return response;
-  } catch (error) {
-    console.log(error);
-    return undefined;
+    const response = await axios.post(`${API_BASE_URL}/admin/signin`, user);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data?.message || "An error occurred";
   }
 };
 
 // Getuser from token
 export const getUserProfile = async (): Promise<
-  AxiosResponse<IUser> | undefined
+  AxiosResponse<any> | undefined
 > => {
   try {
     const accessToken = localStorage.getItem("token");
