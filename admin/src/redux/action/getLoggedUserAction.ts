@@ -1,6 +1,6 @@
 import * as actionTypes from "../actionType/getLoggedUserActionType";
 import { DispatchLoggedUserType } from "../type";
-import { fetchUserProfile } from "../../service/getLoggedUserService";
+import { fetchUserProfile } from "../../service/commonService";
 
 const userProfileRequest = (): actionTypes.UserProfileRequestAction => ({
   type: actionTypes.USER_PROFILE_REQUEST,

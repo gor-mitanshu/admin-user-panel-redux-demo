@@ -5,7 +5,7 @@ import {
   FETCH_VIEW_USER_FAILURE,
 } from "../actionType/viewUserActionType";
 import { IUser } from "../type";
-import { fetchViewUserService } from "../../service/viewUserService";
+import { fetchViewUserService } from "../../service/commonService";
 
 export const fetchViewUserRequest = () => ({
   type: FETCH_VIEW_USER_REQUEST,

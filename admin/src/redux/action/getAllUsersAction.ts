@@ -1,4 +1,4 @@
-import { getUsersService } from "../../service/getAllUsersService";
+import { getUsersService } from "../../service/commonService";
 import * as actionTypes from "../actionType/getUsersActionType";
 import { DispatchUsersType } from "../type";
 

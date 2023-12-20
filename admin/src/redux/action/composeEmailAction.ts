@@ -1,4 +1,4 @@
-import { composeEmailService } from "../../service/composeEmailService";
+import { composeEmailService } from "../../service/commonService";
 import {
   COMPOSE_EMAIL_REQUEST,
   COMPOSE_EMAIL_SUCCESS,

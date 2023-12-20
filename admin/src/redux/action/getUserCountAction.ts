@@ -1,4 +1,4 @@
-import { getUserCountService } from "../../service/getUserCountService";
+import { getUserCountService } from "../../service/commonService";
 import * as actionTypes from "../actionType/getUserCountsActionType";
 import { Dispatch, AnyAction } from "redux";
 

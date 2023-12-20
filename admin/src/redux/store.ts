@@ -6,7 +6,6 @@ import getUserCountsReducer from "./reducer/getUserCountsReducer";
 import loginReducer from "./reducer/loginReducer";
 import viewUserReducer from "./reducer/viewUserReducer";
 import composeEmailReducer from "./reducer/composeEmailReducer";
-import updateUserReducer from "./reducer/updateUserReducer";
 import getUserByIdReducer from "./reducer/getUserByIdReducer";
 import storage from "redux-persist/lib/storage";
 import { persistStore, persistReducer } from "redux-persist";
@@ -19,7 +18,6 @@ const rootReducer: any = combineReducers({
   login: loginReducer,
   viewUser: viewUserReducer,
   composeEmail: composeEmailReducer,
-  userUpdate: updateUserReducer,
   userById: getUserByIdReducer,
 });
 const persistConfig: any = {

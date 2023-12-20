@@ -4,7 +4,7 @@ import {
   LOGIN_SUCCESS,
   LOGIN_FAILURE,
 } from "../actionType/loginActionType";
-import * as authService from "../../service/loginService";
+import * as authService from "../../service/commonService";
 
 export const loginRequest = () => ({
   type: LOGIN_REQUEST,
@@ -21,7 +21,7 @@ export const loginFailure = (error: string) => ({
 });
 
 export const loginUser =
-  (user: authService.IUser) => async (dispatch: Dispatch) => {
+  (user: authService.ILogin) => async (dispatch: Dispatch) => {
     dispatch(loginRequest());
     try {
       const response = await authService.login(user);

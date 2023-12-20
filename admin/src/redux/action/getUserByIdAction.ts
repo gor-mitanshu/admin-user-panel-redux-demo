@@ -1,4 +1,4 @@
-import { getUserByIdService } from "../../service/getUserByIdService";
+import { getUserByIdService } from "../../service/commonService";
 import {
   DispatchUserByIdType,
   GET_USER_BY_ID,
