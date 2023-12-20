@@ -1,12 +1,12 @@
-import axios from "axios";
-import { DispatchUsersType, IUser } from "../type";
+import { getUsersService } from "../../service/getAllUsersService";
 import * as actionTypes from "../actionType/getUsersActionType";
+import { DispatchUsersType } from "../type";
 
 const usersRequest = (): actionTypes.UsersRequestAction => ({
   type: actionTypes.USERS_REQUEST,
 });
 
-const usersSuccess = (users: IUser[]): actionTypes.GetUsersAction => ({
+const usersSuccess = (users: any): actionTypes.GetUsersAction => ({
   type: actionTypes.GET_USERS,
   users,
 });
@@ -21,19 +21,19 @@ export const fetchUsers = () => {
       dispatch(usersRequest());
       const token = getState().login.token;
       if (token) {
-        const res = await axios.get(
-          `${process.env.REACT_APP_API}/user/getUsers`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        if (!!res) {
-          dispatch(usersSuccess(res.data.data));
+        const response: any = await getUsersService(token);
+        if (response && response.data) {
+          dispatch(usersSuccess(response.data.data));
+        } else {
+          console.log("Users not found");
+          dispatch(usersFailure());
         }
+      } else {
+        console.log("Token not found");
+        dispatch(usersFailure());
       }
     } catch (error: any) {
-      console.log(error.response.data.message);
+      console.error("Error fetching users:", error);
       dispatch(usersFailure());
     }
   };

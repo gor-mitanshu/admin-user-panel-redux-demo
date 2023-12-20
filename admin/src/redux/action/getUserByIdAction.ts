@@ -1,4 +1,4 @@
-import axios from "axios";
+import { getUserByIdService } from "../../service/getUserByIdService";
 import {
   DispatchUserByIdType,
   GET_USER_BY_ID,
@@ -12,17 +12,20 @@ export const getUserById =
     try {
       const token = getState().login.token;
       if (token) {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API}/user/getUser/${id}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        const userData = response.data.data;
-        dispatch({ type: GET_USER_BY_ID, user: userData });
+        const response = await getUserByIdService(id, token);
+        if (response && response.data) {
+          const userData = response.data.data;
+          dispatch({ type: GET_USER_BY_ID, user: userData });
+        } else {
+          console.log("User not found");
+          dispatch({ type: USER_BY_ID_FAILURE });
+        }
+      } else {
+        console.log("Token not found");
+        dispatch({ type: USER_BY_ID_FAILURE });
       }
     } catch (error) {
+      console.error("Error fetching user by id:", error);
       dispatch({ type: USER_BY_ID_FAILURE });
     }
   };

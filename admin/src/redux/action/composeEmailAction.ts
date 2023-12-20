@@ -1,4 +1,4 @@
-import axios from "axios";
+import { composeEmailService } from "../../service/composeEmailService";
 import {
   COMPOSE_EMAIL_REQUEST,
   COMPOSE_EMAIL_SUCCESS,
@@ -31,16 +31,19 @@ export const composeEmail =
     try {
       const token = getState().login.token;
       if (token) {
-        const res = await axios.post(
-          `${process.env.REACT_APP_API}/admin/sendMail`,
-          emailData,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        dispatch(composeEmailSuccess(res.data.message));
+        const message = await composeEmailService(emailData, token);
+        console.log(message);
+        if (message) {
+          dispatch(composeEmailSuccess(message));
+        } else {
+          dispatch(composeEmailFailure("Failed to send email"));
+        }
+      } else {
+        dispatch(composeEmailFailure("Token not found"));
       }
     } catch (error: any) {
-      dispatch(composeEmailFailure(error.response.data.message));
+      dispatch(
+        composeEmailFailure(error.response?.data.message || "An error occurred")
+      );
     }
   };

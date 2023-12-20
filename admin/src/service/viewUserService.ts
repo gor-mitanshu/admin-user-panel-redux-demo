@@ -1,23 +1,15 @@
 import axios, { AxiosResponse } from "axios";
+import { IUser } from "../redux/type";
 
 const API_BASE_URL = process.env.REACT_APP_API;
 
-export interface IUser {
-  data: any;
-  _id: string;
-  firstname: string;
-  lastname: string;
-  email: string;
-  phone: string;
-  picture: string;
-}
-
-export const fetchUserProfile = async (
+export const fetchViewUserService = async (
+  userId: string,
   accessToken: string
 ): Promise<AxiosResponse<IUser> | undefined> => {
   try {
     const response = await axios.get<IUser>(
-      `${API_BASE_URL}/admin/loggedProfile`,
+      `${API_BASE_URL}/user/getUser/${userId}`,
       {
         headers: { Authorization: `Bearer ${accessToken}` },
       }

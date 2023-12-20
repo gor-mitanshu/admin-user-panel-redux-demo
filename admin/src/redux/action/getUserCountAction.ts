@@ -1,4 +1,4 @@
-import axios from "axios";
+import { getUserCountService } from "../../service/getUserCountService";
 import * as actionTypes from "../actionType/getUserCountsActionType";
 import { Dispatch, AnyAction } from "redux";
 
@@ -23,14 +23,16 @@ export const fetchUserCounts = () => {
       dispatch(userCountsRequest());
       const token = getState().login.token;
       if (token) {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API}/user/getUserCounts`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        const { data } = response.data;
-        dispatch(getUserCountsSuccess(data));
+        const response = await getUserCountService(token);
+        if (response && response.data) {
+          dispatch(getUserCountsSuccess(response.data.data));
+        } else {
+          console.log("User counts not found");
+          dispatch(userCountsFailure());
+        }
+      } else {
+        console.log("Token not found");
+        dispatch(userCountsFailure());
       }
     } catch (error) {
       console.error("Error fetching user counts:", error);
