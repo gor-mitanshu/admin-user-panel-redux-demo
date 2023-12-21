@@ -6,13 +6,40 @@ import EChart from "../echart/EChartData";
 import { Helmet } from "react-helmet";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { fetchUserCounts } from "../../../../redux/action/getUserCountAction";
+import {
+  getUserCountsSuccess,
+  userCountsFailure,
+  userCountsRequest,
+} from "../../../../redux/action/getUserCountAction";
+import { getUserCountService } from "../../../../service/commonService";
 
 const Dashboard = (): JSX.Element => {
   const dispatch = useDispatch();
+  const loginToken = useSelector((state: any) => state.login.token);
   const userCounts = useSelector((state: any) => state.userCounts.userCounts);
+  const fetUserCounts = async () => {
+    try {
+      dispatch(userCountsRequest());
+      if (loginToken) {
+        const response = await getUserCountService(loginToken);
+        if (response && response.data) {
+          dispatch(getUserCountsSuccess(response.data.data));
+        } else {
+          console.log("User counts not found");
+          dispatch<any>(userCountsFailure());
+        }
+      } else {
+        console.log("Token not found");
+        dispatch<any>(userCountsFailure());
+      }
+    } catch (error) {
+      console.error("Error fetching user counts:", error);
+      dispatch<any>(userCountsFailure());
+    }
+  };
   useEffect(() => {
-    dispatch<any>(fetchUserCounts());
+    fetUserCounts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
   return (
     <>

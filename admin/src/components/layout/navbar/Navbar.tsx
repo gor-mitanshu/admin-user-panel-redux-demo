@@ -14,9 +14,6 @@ const Navbar = ({ toogleSidebar, admin }: any): JSX.Element => {
       <AppBar className="appbar">
         <Toolbar className="toolbar-navbar">
           <MenuIcon className="menu-icon" onClick={toogleSiderbar} />
-          {/* <Grid className="navbar-name-content-center">
-              <Typography className="navbar-title">Panel</Typography>
-            </Grid> */}
           <div
             className="justify-end justify-center"
             style={{

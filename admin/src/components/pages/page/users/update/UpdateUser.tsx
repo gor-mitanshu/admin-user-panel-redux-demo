@@ -15,7 +15,11 @@ import { Helmet } from "react-helmet";
 import DialogModal from "../../dailogueBox/DialogModal";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import { getUserById } from "../../../../../redux/action/getUserByIdAction";
+import {
+  getUserByIdFailiure,
+  getUserByIdSuccess,
+} from "../../../../../redux/action/getUserByIdAction";
+import { getUserByIdService } from "../../../../../service/commonService";
 
 interface IUser {
   id?: string;
@@ -30,7 +34,7 @@ interface IUser {
 
 const UpdateUser = () => {
   const dispatch = useDispatch();
-
+  const loginToken = useSelector((state: any) => state.login.token);
   const user = useSelector((state: any) => state.userById.user);
   // const loading = useSelector((state: any) => state.userById.loading);
 
@@ -63,24 +67,28 @@ const UpdateUser = () => {
 
   const getUser = async () => {
     try {
-      await dispatch<any>(getUserById(id));
-      setInitialPicture(user?.picture);
-      setEditedUser({
-        ...user,
-        picture: user?.picture || "",
-      });
-      // setEditedUser({
-      //   firstname: user.firstname,
-      //   lastname: user.lastname,
-      //   email: user.email,
-      //   phone: user.phone,
-      //   password: user.password,
-      //   status: user.status,
-      //   picture: user?.picture || "",
-      // });
-      initialUser.current = user;
-    } catch (error: any) {
-      console.error("Error fetching user details:", error);
+      if (loginToken) {
+        const response = await getUserByIdService(id, loginToken);
+        if (response && response.data) {
+          const userData = response.data.data;
+          dispatch(getUserByIdSuccess(userData));
+          setInitialPicture(user?.picture);
+          setEditedUser({
+            ...user,
+            picture: user?.picture || "",
+          });
+          initialUser.current = user;
+        } else {
+          console.log("User not found");
+          dispatch<any>(getUserByIdFailiure());
+        }
+      } else {
+        console.log("Token not found");
+        dispatch<any>(getUserByIdFailiure());
+      }
+    } catch (error) {
+      console.error("Error fetching user by id:", error);
+      dispatch<any>(getUserByIdFailiure());
     }
   };
   useEffect(() => {

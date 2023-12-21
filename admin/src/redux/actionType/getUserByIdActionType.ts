@@ -1,8 +1,8 @@
 import { IUser } from "../type";
 
-export const GET_USER_BY_ID = "GET_USER_BY_ID";
 export const USER_BY_ID_REQUEST = "USER_BY_ID_REQUEST";
 export const USER_BY_ID_FAILURE = "USER_BY_ID_FAILURE";
+export const GET_USER_BY_ID = "GET_USER_BY_ID";
 
 export interface IUserByIdState {
   user: IUser | any;

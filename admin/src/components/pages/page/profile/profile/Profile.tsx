@@ -1,5 +1,9 @@
 import React, { useEffect } from "react";
-import { getUserProfile } from "../../../../../redux/action/getLoggedUserAction";
+import {
+  userProfileFailure,
+  userProfileRequest,
+  userProfileSuccess,
+} from "../../../../../redux/action/getLoggedUserAction";
 import {
   Avatar,
   Typography,
@@ -10,22 +14,37 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
+import { fetchUserProfile } from "../../../../../service/commonService";
 
 const Profile: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const loginToken = useSelector((state: any) => state.login.token);
   const userState = useSelector((state: any) => state.admin);
   const getLoggedProfile = async () => {
     try {
-      dispatch<any>(getUserProfile());
+      dispatch<any>(userProfileRequest());
+      if (loginToken) {
+        const response = await fetchUserProfile(loginToken);
+        if (response && response.data) {
+          dispatch<any>(userProfileSuccess(response.data));
+        } else {
+          console.log("User not found");
+          dispatch<any>(userProfileFailure());
+        }
+      } else {
+        console.log("Token not found");
+        dispatch<any>(userProfileFailure());
+      }
     } catch (error: any) {
-      console.log(error.response.data.message);
+      console.log(error.response?.data.message || "An error occurred");
+      dispatch<any>(userProfileFailure());
     }
   };
   useEffect(() => {
     getLoggedProfile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch]);
+  }, [dispatch, loginToken]);
 
   return (
     <>

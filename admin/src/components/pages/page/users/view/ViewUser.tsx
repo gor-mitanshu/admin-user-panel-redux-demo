@@ -14,8 +14,19 @@ import { Helmet } from "react-helmet";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../../redux/store";
-import { fetchViewUser } from "../../../../../redux/action/viewUserAction";
-import { getUserProfile } from "../../../../../redux/action/getLoggedUserAction";
+import {
+  fetchViewUserFailure,
+  fetchViewUserSuccess,
+} from "../../../../../redux/action/viewUserAction";
+import {
+  userProfileFailure,
+  userProfileRequest,
+  userProfileSuccess,
+} from "../../../../../redux/action/getLoggedUserAction";
+import {
+  fetchUserProfile,
+  fetchViewUserService,
+} from "../../../../../service/commonService";
 
 interface IUser {
   _id: string;
@@ -29,14 +40,9 @@ interface IUser {
 
 const ViewUser = () => {
   const dispatch = useDispatch();
-  const viewUser: IUser = useSelector(
-    (state: RootState) => state.viewUser.user
-  );
+  const viewUser: IUser = useSelector((state: any) => state.viewUser.user);
   const admin: any = useSelector((state: any) => state.admin.user);
-  // const adminLoading = useSelector((state: RootState) => state.admin.loading);
-  // const viewUserLoading = useSelector(
-  //   (state: RootState) => state.viewUser.loading
-  // );
+  const loginToken = useSelector((state: any) => state.login.token);
   const viewUserError = useSelector((state: RootState) => state.viewUser.error);
   const navigate = useNavigate();
   const { id } = useParams();
@@ -48,22 +54,53 @@ const ViewUser = () => {
         console.log(viewUserError);
       }
       if (!!id) {
-        dispatch<any>(fetchViewUser(id));
+        try {
+          if (loginToken) {
+            const response: any = await fetchViewUserService(id, loginToken);
+            if (response && response.data) {
+              dispatch(fetchViewUserSuccess(response.data.data));
+            } else {
+              dispatch(fetchViewUserFailure("Failed to fetch user details"));
+            }
+          } else {
+            dispatch(fetchViewUserFailure("Token not found"));
+          }
+        } catch (error: any) {
+          console.error("Error fetching user details:", error);
+          dispatch(
+            fetchViewUserFailure(
+              error.response?.data.message || "Error fetching user details"
+            )
+          );
+        }
       }
     };
     viewUser();
-  }, [dispatch, id, viewUserError]);
+  }, [dispatch, id, loginToken, viewUserError]);
 
   useEffect(() => {
     const getUser = async () => {
       try {
-        dispatch<any>(getUserProfile());
+        dispatch<any>(userProfileRequest());
+        if (loginToken) {
+          const response = await fetchUserProfile(loginToken);
+          if (response && response.data) {
+            dispatch<any>(userProfileSuccess(response.data));
+          } else {
+            console.log("User not found");
+            dispatch<any>(userProfileFailure());
+          }
+        } else {
+          console.log("Token not found");
+          dispatch<any>(userProfileFailure());
+        }
       } catch (error: any) {
-        console.log(error.response.data.message);
+        console.log(error.response?.data.message || "An error occurred");
+        dispatch<any>(userProfileFailure());
       }
     };
     getUser();
-  }, [dispatch]);
+  }, [dispatch, loginToken]);
 
   const openComposeModal = () => {
     setComposeModalOpen(true);

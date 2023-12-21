@@ -52,7 +52,6 @@ const SignIn = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const loginState = useSelector((state: any) => state.login);
-  console.log(loginState);
   const [user, setUser] = useState<IUser>({
     email: "",
     password: "",
@@ -84,7 +83,7 @@ const SignIn = () => {
         navigate(state?.path || "/", { replace: true });
         toast.success(response.message);
       } else {
-        console.log(response);
+        console.log(response, "Error");
         // toast.error(response.)
       }
     } catch (error: any) {

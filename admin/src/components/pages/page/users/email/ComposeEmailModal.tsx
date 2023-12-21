@@ -44,7 +44,6 @@ const ComposeEmailModal: React.FC<ComposeEmailModalProps> = ({
 
   const dispatch = useDispatch();
   const loginToken = useSelector((state: RootState) => state.login.token);
-  console.log(loginToken);
   const message = useSelector((state: RootState) => state.composeEmail.message);
   const loading = useSelector((state: RootState) => state.composeEmail.loading);
   const errorMessage = useSelector(

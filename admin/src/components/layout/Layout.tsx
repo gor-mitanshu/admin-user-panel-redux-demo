@@ -4,18 +4,43 @@ import "./Layout.css";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./sidebar/Sidebar";
 import Navbar from "./navbar/Navbar";
-import { connect } from "react-redux";
-import { getUserProfile } from "../../redux/action/getLoggedUserAction";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  userProfileRequest,
+  userProfileSuccess,
+  userProfileFailure,
+} from "../../redux/action/getLoggedUserAction";
+import { fetchUserProfile } from "../../service/commonService";
 
-interface ILayoutProps {
-  admin: any;
-  getUserProfile: () => void;
-}
-const Layout: React.FC<ILayoutProps> = ({ admin, getUserProfile }) => {
+const Layout = () => {
+  const dispatch = useDispatch();
+  const admin: any = useSelector((state: any) => state.admin.user.data);
+  const loginToken = useSelector((state: any) => state.login.token);
   const [isOpen, setIsClose] = useState<boolean>(true);
+  const getLoggedProfile = async () => {
+    try {
+      dispatch<any>(userProfileRequest());
+      if (loginToken) {
+        const response = await fetchUserProfile(loginToken);
+        if (response && response.data) {
+          dispatch<any>(userProfileSuccess(response.data));
+        } else {
+          console.log("User not found");
+          dispatch<any>(userProfileFailure());
+        }
+      } else {
+        console.log("Token not found");
+        dispatch<any>(userProfileFailure());
+      }
+    } catch (error: any) {
+      console.log(error.response?.data.message || "An error occurred");
+      dispatch<any>(userProfileFailure());
+    }
+  };
   useEffect(() => {
-    getUserProfile();
-  }, [getUserProfile]);
+    getLoggedProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, loginToken]);
 
   const toggleSidebar = () => {
     setIsClose((toogle) => !toogle);
@@ -42,12 +67,4 @@ const Layout: React.FC<ILayoutProps> = ({ admin, getUserProfile }) => {
   );
 };
 
-const mapStateToProps = (state: any) => ({
-  admin: state.admin.user.data,
-});
-
-const mapDispatchToProps = {
-  getUserProfile,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Layout);
+export default Layout;
