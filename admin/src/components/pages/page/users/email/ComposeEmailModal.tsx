@@ -103,7 +103,6 @@ const ComposeEmailModal: React.FC<ComposeEmailModalProps> = ({
       try {
         if (loginToken) {
           const message = await composeEmailService(emailData, loginToken);
-          console.log(message);
           if (message) {
             dispatch(composeEmailSuccess(message));
           } else {
@@ -120,7 +119,7 @@ const ComposeEmailModal: React.FC<ComposeEmailModalProps> = ({
         );
       }
     } catch (error: any) {
-      console.log(error);
+      console.error(error);
     }
   };
 

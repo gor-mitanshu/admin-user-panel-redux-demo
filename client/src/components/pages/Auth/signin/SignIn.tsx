@@ -14,9 +14,11 @@ import {
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../../protectedRoute/AuthContext";
+import * as authService from "../../../../service/commonService";
+import { loginTokenUpdate } from "../../../../redux/action/loginAction";
+import { useDispatch } from "react-redux";
 
 interface IUser {
   email: string;
@@ -43,6 +45,7 @@ const Copyright = (props: any) => {
 const defaultTheme = createTheme();
 
 const SignIn = ({ height, width }: any) => {
+  const dispatch = useDispatch();
   const { login } = useAuth();
   const navigate = useNavigate();
   const { state } = useLocation();
@@ -69,27 +72,11 @@ const SignIn = ({ height, width }: any) => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!user.email) {
-      showErrorWithTimeout("Please Enter Your Email", 3000);
-      return;
-    }
-    if (!user.password) {
-      showErrorWithTimeout("Please Enter Your Password", 3000);
-      return;
-    }
-
     try {
-      const body = {
-        email: user.email,
-        password: user.password,
-      };
-      const res = await axios.post(
-        `${process.env.REACT_APP_API}/user/signin`,
-        body
-      );
-      if (!!res) {
+      const response = await authService.signIn(user);
+      if (response && response.success === true) {
         setLoading(false);
-        if (!res.data.isVerified) {
+        if (response.isVerified !== true) {
           showErrorWithTimeout(
             "Email not verified. Please verify your email to log in.",
             3000
@@ -98,17 +85,18 @@ const SignIn = ({ height, width }: any) => {
             toast.warn("Verify your email first.");
           }, 1000);
         } else {
-          login(res.data);
-          localStorage.setItem("token", JSON.stringify(res.data.data));
-          navigate(state?.path || "/", { replace: true });
-          toast.success(res.data.message);
+          const data = response.data;
+          dispatch(loginTokenUpdate(data));
+          login(data);
+          navigate(state?.path || "/dashboard", { replace: true });
+          toast.success(response.message);
         }
+      } else {
+        toast.error("Something went wrong");
       }
-      setLoading(true);
     } catch (error: any) {
       setLoading(false);
-      showErrorWithTimeout(error.response.data.message, 3000);
-      return;
+      showErrorWithTimeout(error, 3000);
     }
   };
 

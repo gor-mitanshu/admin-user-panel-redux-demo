@@ -4,6 +4,9 @@ import axios from "axios";
 import { Avatar, Typography, Button, Grid, TextField } from "@mui/material";
 import { toast } from "react-toastify";
 import DialogModal from "../../dailogueBox/DialogModal";
+import { useDispatch, useSelector } from "react-redux";
+import { getUserByIdService } from "../../../../../service/commonService";
+import { setUserProfile } from "../../../../../redux/action/getUserByIdAction";
 
 interface IUser {
   id?: string;
@@ -38,24 +41,31 @@ const UpdateProfile = () => {
     picture: "",
   });
   const [isDialogOpen, setDialogOpen] = useState(false);
-
+  const dispatch = useDispatch();
+  const loginToken = useSelector((state: any) => state.login.token);
   useEffect(() => {
     const getUser = async () => {
-      const accessToken: any = localStorage.getItem("token");
-      const accessTokenwithoutQuotes = JSON.parse(accessToken);
-      axios
-        .get(`${process.env.REACT_APP_API}/user/getUser/${id}`, {
-          headers: { Authorization: `Bearer ${accessTokenwithoutQuotes}` },
-        })
-        .then((response) => {
-          const userData = response.data.data;
-          setEditedUser(userData);
-          initialUser.current = userData;
-          setInitialPicture(userData.picture);
-        });
+      try {
+        if (loginToken) {
+          const response = await getUserByIdService(id, loginToken);
+          if (response && response.data) {
+            dispatch<any>(setUserProfile(response.data));
+            setEditedUser(response.data.data);
+            initialUser.current = response.data.data;
+            setInitialPicture(response.data.data.picture);
+          } else {
+            console.error("User not found");
+          }
+        } else {
+          console.error("Token not found");
+        }
+      } catch (error: any) {
+        console.error(error.response?.data.message || "An error occurred");
+      }
     };
     getUser();
-  }, [id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, loginToken]);
 
   const showErrorWithTimeout = (errorMessage: string, timeout: number) => {
     setError(errorMessage);
@@ -109,14 +119,12 @@ const UpdateProfile = () => {
       } else {
         formData.append("picture", initialPicture);
       }
-      const accessToken: any = localStorage.getItem("token");
-      const accessTokenwithoutQuotes = JSON.parse(accessToken);
       const res = await axios.put(
-        `${process.env.REACT_APP_API}/admin/update/${id}`,
+        `${process.env.REACT_APP_API}/user/update/${id}`,
         formData,
         {
           headers: {
-            Authorization: `Bearer ${accessTokenwithoutQuotes}`,
+            Authorization: `Bearer ${loginToken}`,
             "Content-Type": "multipart/form-data",
           },
         }
@@ -186,7 +194,7 @@ const UpdateProfile = () => {
                   editedUser.picture
                     ? editedUser.picture instanceof File
                       ? URL.createObjectURL(editedUser.picture)
-                      : `${process.env.REACT_APP_API}/adminImages/${editedUser.picture}`
+                      : `${process.env.REACT_APP_API}/userImages/${editedUser.picture}`
                     : ""
                 }
                 alt={editedUser.firstname

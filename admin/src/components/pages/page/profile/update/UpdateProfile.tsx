@@ -130,7 +130,7 @@ const UpdateProfile = () => {
         return;
       }
     } catch (error: any) {
-      console.log(error);
+      console.error(error);
       showErrorWithTimeout(error.response.data.message, 3000);
       return;
     }

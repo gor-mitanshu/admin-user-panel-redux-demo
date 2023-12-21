@@ -29,15 +29,15 @@ const Profile: React.FC = () => {
         if (response && response.data) {
           dispatch<any>(userProfileSuccess(response.data));
         } else {
-          console.log("User not found");
+          console.error("User not found");
           dispatch<any>(userProfileFailure());
         }
       } else {
-        console.log("Token not found");
+        console.error("Token not found");
         dispatch<any>(userProfileFailure());
       }
     } catch (error: any) {
-      console.log(error.response?.data.message || "An error occurred");
+      console.error(error.response?.data.message || "An error occurred");
       dispatch<any>(userProfileFailure());
     }
   };

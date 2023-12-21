@@ -56,11 +56,11 @@ const Users = () => {
         if (response && response.data) {
           dispatch<any>(usersSuccess(response.data.data));
         } else {
-          console.log("Users not found");
+          console.error("Users not found");
           dispatch<any>(usersFailure());
         }
       } else {
-        console.log("Token not found");
+        console.error("Token not found");
         dispatch<any>(usersFailure());
       }
     } catch (error: any) {
@@ -98,7 +98,7 @@ const Users = () => {
           toast.error(res.data.message);
         }
       } catch (error: any) {
-        console.log(error);
+        console.error(error);
         toast.error(error.response.data.message);
       }
     }

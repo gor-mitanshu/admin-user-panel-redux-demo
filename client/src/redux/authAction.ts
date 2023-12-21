@@ -20,13 +20,13 @@ export const fetchUserProfile = () => {
         if (!!res) {
           dispatch(setUserProfile(res.data.data));
         } else {
-          console.log("User not found");
+          console.error("User not found");
         }
       } else {
-        console.log("error");
+        console.error("error");
       }
     } catch (error: any) {
-      console.log(error.response.data.message);
+      console.error(error.response.data.message);
     }
   };
 };

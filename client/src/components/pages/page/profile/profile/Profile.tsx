@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
-import { connect } from "react-redux";
-import { fetchUserProfile } from "../../../../../redux/authAction";
+import { setUserProfile } from "../../../../../redux/action/getLoggedUserAction";
 import {
   Avatar,
   Typography,
@@ -8,28 +7,40 @@ import {
   Grid,
   CircularProgress,
 } from "@mui/material";
-import { RootState } from "../../../../../redux/store";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { fetchUserProfile } from "../../../../../service/commonService";
 
-interface IProfileProps {
-  user: any;
-  loading: boolean;
-  fetchUserProfile: () => void;
-}
-
-const Profile: React.FC<IProfileProps> = ({
-  user,
-  loading,
-  fetchUserProfile,
-}) => {
+const Profile: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const loginToken = useSelector((state: any) => state.login.token);
+  const user: any = useSelector((state: any) => state.user.user);
+  const getLoggedProfile = async () => {
+    try {
+      if (loginToken) {
+        const response = await fetchUserProfile(loginToken);
+        if (response && response.data) {
+          dispatch<any>(setUserProfile(response.data));
+        } else {
+          console.error("User not found");
+        }
+      } else {
+        console.error("Token not found");
+      }
+    } catch (error: any) {
+      console.error(error.response?.data.message || "An error occurred");
+    }
+  };
   useEffect(() => {
-    fetchUserProfile();
-  }, [fetchUserProfile]);
+    getLoggedProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch]);
 
   return (
     <>
-      {!loading ? (
+      {!user.data.loading ? (
         <>
           <Typography
             textAlign={"center"}
@@ -41,7 +52,7 @@ const Profile: React.FC<IProfileProps> = ({
             Profile
           </Typography>
           <Grid container display={"flex"} justifyContent={"center"}>
-            {user !== null ? (
+            {user.data !== null ? (
               <>
                 <div
                   style={{
@@ -51,11 +62,11 @@ const Profile: React.FC<IProfileProps> = ({
                     textAlign: "center",
                   }}
                 >
-                  {user?.picture ? (
+                  {user.data?.picture ? (
                     <Avatar
-                      src={`${process.env.REACT_APP_API}/userImages/${user?.picture}`}
-                      alt={user?.firstname
-                        .concat(".", user?.lastname)
+                      src={`${process.env.REACT_APP_API}/userImages/${user.data?.picture}`}
+                      alt={user.data?.firstname
+                        .concat(".", user.data?.lastname)
                         .split(" ")
                         .map((n: any) => n[0])
                         .join("")
@@ -68,20 +79,20 @@ const Profile: React.FC<IProfileProps> = ({
                     />
                   ) : null}
                   <Typography variant="h4" gutterBottom>
-                    {user?.firstname} {user?.lastname}
+                    {user.data?.firstname} {user.data?.lastname}
                   </Typography>
                   <Typography variant="body1" gutterBottom>
-                    <b>Email:</b> {user?.email}
+                    <b>Email:</b> {user.data?.email}
                   </Typography>
                   <Typography variant="body1" gutterBottom>
-                    <b>Phone:</b> {user?.phone}
+                    <b>Phone:</b> {user.data?.phone}
                   </Typography>
                   <Button
                     variant="contained"
                     color="primary"
                     size="large"
                     style={{ marginTop: "10px", width: "100%" }}
-                    onClick={() => navigate(`/update/${user?._id}`)}
+                    onClick={() => navigate(`/update/${user.data?._id}`)}
                   >
                     Update
                   </Button>
@@ -108,13 +119,4 @@ const Profile: React.FC<IProfileProps> = ({
   );
 };
 
-const mapStateToProps = (state: RootState) => ({
-  user: state.auth.user,
-  loading: state.auth.loading,
-});
-
-const mapDispatchToProps = {
-  fetchUserProfile,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Profile);
+export default Profile;

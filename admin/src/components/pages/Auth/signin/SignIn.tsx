@@ -83,11 +83,11 @@ const SignIn = () => {
         navigate(state?.path || "/", { replace: true });
         toast.success(response.message);
       } else {
-        console.log(response, "Error");
+        console.error(response, "Error");
         // toast.error(response.)
       }
     } catch (error: any) {
-      // console.log("Login Error:", error);
+      // console.error("Login Error:", error);
       showErrorWithTimeout(error, 3000);
     }
   };

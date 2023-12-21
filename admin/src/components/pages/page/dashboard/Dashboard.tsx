@@ -25,11 +25,11 @@ const Dashboard = (): JSX.Element => {
         if (response && response.data) {
           dispatch(getUserCountsSuccess(response.data.data));
         } else {
-          console.log("User counts not found");
+          console.error("User counts not found");
           dispatch<any>(userCountsFailure());
         }
       } else {
-        console.log("Token not found");
+        console.error("Token not found");
         dispatch<any>(userCountsFailure());
       }
     } catch (error) {

@@ -6,7 +6,6 @@ const UserVerification = () => {
   const { verificationToken } = useParams();
   const [verificationStatus, setVerificationStatus] = useState("Verifying...");
 
-  console.log(verificationToken);
   useEffect(() => {
     debugger;
     const verifyUser = async () => {
@@ -19,7 +18,7 @@ const UserVerification = () => {
           setVerificationStatus("Email verification successful.");
         }
       } catch (error: any) {
-        console.log(error);
+        console.error(error);
         setVerificationStatus(error?.response.data.message);
       }
     };

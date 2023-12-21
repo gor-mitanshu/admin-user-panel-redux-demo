@@ -9,7 +9,6 @@ const Navbar = ({ toogleSidebar, user }: any): JSX.Element => {
     setOpen(!isOpen);
     toogleSidebar(isOpen);
   };
-
   return (
     <div>
       <AppBar className="appbar">

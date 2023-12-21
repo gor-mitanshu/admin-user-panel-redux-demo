@@ -4,21 +4,31 @@ import "./Layout.css";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./sidebar/Sidebar";
 import Navbar from "./navbar/Navbar";
-import { RootState } from "../../redux/store";
-import { connect } from "react-redux";
-import { fetchUserProfile } from "../../redux/authAction";
+import { useDispatch, useSelector } from "react-redux";
+import { setUserProfile } from "../../redux/action/getLoggedUserAction";
+import { fetchUserProfile } from "../../service/commonService";
 
-interface ILayoutProps {
-  user: any;
-  fetchUserProfile: () => void;
-}
-
-const Layout: React.FC<ILayoutProps> = ({ user, fetchUserProfile }) => {
+const Layout = () => {
+  const dispatch = useDispatch();
+  const user: any = useSelector((state: any) => state.user.user);
+  const loginToken = useSelector((state: any) => state.login.token);
   const [isOpen, setIsClose] = useState<boolean>(true);
-
+  const getLoggedProfile = async () => {
+    try {
+      const response = await fetchUserProfile(loginToken);
+      if (response && response.data) {
+        dispatch<any>(setUserProfile(response.data));
+      } else {
+        console.error("User not found");
+      }
+    } catch (error: any) {
+      console.error(error.response?.data.message || "An error occurred");
+    }
+  };
   useEffect(() => {
-    fetchUserProfile();
-  }, [fetchUserProfile]);
+    getLoggedProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, loginToken]);
 
   const toggleSidebar = () => {
     setIsClose((toogle) => !toogle);
@@ -32,10 +42,10 @@ const Layout: React.FC<ILayoutProps> = ({ user, fetchUserProfile }) => {
     <div>
       <Grid className="layout">
         <Grid className={isOpen ? "layout-sidebar" : "layout-sidebar-sm"}>
-          <Sidebar userId={user} />
+          <Sidebar userId={user.data._id} />
         </Grid>
         <Grid className="layout-navbar">
-          <Navbar toogleSidebar={toggleSidebar} user={user} />
+          <Navbar toogleSidebar={toggleSidebar} user={user.data} />
         </Grid>
         <Grid className="outlet">
           <Outlet />
@@ -45,12 +55,4 @@ const Layout: React.FC<ILayoutProps> = ({ user, fetchUserProfile }) => {
   );
 };
 
-const mapStateToProps = (state: RootState) => ({
-  user: state.auth.user,
-});
-
-const mapDispatchToProps = {
-  fetchUserProfile,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Layout);
+export default Layout;

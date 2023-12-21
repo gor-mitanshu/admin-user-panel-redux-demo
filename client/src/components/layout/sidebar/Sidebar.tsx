@@ -21,7 +21,6 @@ const Sidebar = ({ userId }: any): JSX.Element => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [isLogoutDialogOpen, setLogoutDialogOpen] = useState(false);
-
   const handleOpenLogoutDialog = () => {
     setLogoutDialogOpen(true);
   };

@@ -79,11 +79,11 @@ const UpdateUser = () => {
           });
           initialUser.current = user;
         } else {
-          console.log("User not found");
+          console.error("User not found");
           dispatch<any>(getUserByIdFailiure());
         }
       } else {
-        console.log("Token not found");
+        console.error("Token not found");
         dispatch<any>(getUserByIdFailiure());
       }
     } catch (error) {
