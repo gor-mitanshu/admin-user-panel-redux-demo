@@ -16,7 +16,7 @@ function generateOTP () {
   return OTP;
 }
 
-const adminController = {
+const userController = {
   signup: async (req, res) => {
     try {
       const { firstname, lastname, email, phone, password } = req.body;
@@ -424,10 +424,10 @@ const adminController = {
         });
       }
       const expireIn = "10h";
-      // const expireIn = "3000";
       const token = jwt.sign({ user },
         jwtSecret,
         { expiresIn: expireIn });
+
       return res.status(200).send({
         message: "Logged In Successfully!!!",
         success: true,
@@ -852,4 +852,4 @@ const adminController = {
   },
 };
 
-module.exports = adminController;
+module.exports = userController;

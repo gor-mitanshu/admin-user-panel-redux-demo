@@ -6,6 +6,7 @@ const ProtectedRoute = () => {
 
   const ProtectedRoute = ({ children }: any) => {
     if (!isAuthenticated()) {
+      localStorage.clear();
       return <Navigate to="/signin" replace />;
     }
     return <>{children}</>;
